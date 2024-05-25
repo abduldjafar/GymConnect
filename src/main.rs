@@ -30,5 +30,6 @@ struct Record {
 
 #[tokio::main]
 async fn main() -> surrealdb::Result<()> {
+    println!("will start soon...");
     Ok(())
 }
