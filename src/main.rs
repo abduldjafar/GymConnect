@@ -1,35 +1,25 @@
-use serde::{Deserialize, Serialize};
-use surrealdb::engine::remote::ws::Ws;
-use surrealdb::opt::auth::Root;
-use surrealdb::sql::Thing;
-use surrealdb::Surreal;
 
-#[derive(Debug, Serialize)]
-struct Name<'a> {
-    first: &'a str,
-    last: &'a str,
-}
-
-#[derive(Debug, Serialize)]
-struct Person<'a> {
-    title: &'a str,
-    name: Name<'a>,
-    marketing: bool,
-}
-
-#[derive(Debug, Serialize)]
-struct Responsibility {
-    marketing: bool,
-}
-
-#[derive(Debug, Deserialize)]
-struct Record {
-    #[allow(dead_code)]
-    id: Thing,
-}
+use koteka_gym::config::db::{DatabaseSource, DatabaseType, Sources};
+use koteka_gym::repo::db::DBInterface;
+use koteka_gym::repo::model::User;
 
 #[tokio::main]
-async fn main() -> surrealdb::Result<()> {
-    println!("will start soon...");
+async fn main() -> Result<(),Box<dyn std::error::Error> >{
+    // Connect to the server
+    let mut db_source = DatabaseSource {
+        db_type: DatabaseType::SurrealDB,
+    };
+       
+    let conn = db_source.connect().await?;
+    let user = User{ 
+            username: "abdul", 
+            user_type: "gymnast",
+            email: "abdul.haris.djafar@gmail.com", 
+            created_at: None,
+            updated_at: None, 
+            password: "asoigeboi"
+    };
+
+    conn.insert_record("user".to_string(),&user).await?;
     Ok(())
 }
