@@ -2,10 +2,17 @@
 use std::error::Error;
 
 use axum::async_trait;
-use serde::Serialize;
-use surrealdb::{engine::remote::ws::Client, Surreal};
+use serde::{Deserialize, Serialize};
+use surrealdb::{engine::remote::ws::Client, sql::Thing, Surreal};
 
-use crate::{config::db::{DatabaseConnection, SurrealDb}, repo::model::Record};
+use crate::config::db::{DatabaseConnection, SurrealDb};
+
+#[derive(Debug, Deserialize)]
+pub struct Record {
+    #[allow(dead_code)]
+    id: Thing,
+}
+
 
 #[async_trait]
 pub trait DBInterface {
@@ -26,6 +33,7 @@ impl DBInterface for SurrealDb {
         Ok(true)
     }
 }
+
 
 #[async_trait]
 impl DBInterface for DatabaseConnection {

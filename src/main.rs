@@ -1,6 +1,5 @@
 
 use koteka_gym::config::db::{DatabaseSource, DatabaseType, Sources};
-use koteka_gym::repo::db::DBInterface;
 use koteka_gym::repo::model::User;
 
 #[tokio::main]
@@ -20,6 +19,6 @@ async fn main() -> Result<(),Box<dyn std::error::Error> >{
             password: "asoigeboi"
     };
 
-    conn.insert_record("user".to_string(),&user).await?;
+    user.create(conn,"user".to_string()).await?;
     Ok(())
 }

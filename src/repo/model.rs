@@ -10,9 +10,3 @@ pub struct User<'a> {
     pub updated_at: Option<Datetime>,
     pub password: &'a str
 }
-
-#[derive(Debug, Deserialize)]
-pub struct Record {
-    #[allow(dead_code)]
-    id: Thing,
-}
