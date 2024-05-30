@@ -19,7 +19,7 @@ pub enum DatabaseType {
     // Add other database types here, e.g., Postgres
 }
 
-pub enum DatabaseConnection {
+pub enum DatabaseClient {
     Surreal(SurrealDb),
     // Add other database types here, e.g., Postgres(PostgresDb)
 }
@@ -32,24 +32,24 @@ struct Record {
 
 #[async_trait]
 pub trait Initializable {
-    async fn init(&self) -> Result<DatabaseConnection, Box<dyn Error>>;
+    async fn init(&self) -> Result<DatabaseClient, Box<dyn Error>>;
 }
 
 #[async_trait]
 pub trait Connection {
-    fn ping(&self);
+    fn ping(&self) -> String;
 }
 
 
 #[async_trait]
 pub trait Sources {
-    async fn connect(&mut self) -> Result<DatabaseConnection, Box<dyn Error>>;
+    async fn connect(&mut self) -> Result<DatabaseClient, Box<dyn Error>>;
 }
 
 // surrealDB implementation
 #[async_trait]
 impl Initializable for SurrealDb {
-    async fn init(&self) -> Result<DatabaseConnection, Box<dyn Error>> {
+    async fn init(&self) -> Result<DatabaseClient, Box<dyn Error>> {
         let env = Environment::new();
         let hostname = format!("{}:{}", env.db_host, env.db_port);
         let temp_client = Surreal::new::<Ws>(hostname).await?;
@@ -63,26 +63,25 @@ impl Initializable for SurrealDb {
         temp_client.use_ns("test").use_db("test").await?;
 
         let client = Some(temp_client);
-        Ok(DatabaseConnection::Surreal(SurrealDb { client }))
+        Ok(DatabaseClient::Surreal(SurrealDb { client }))
     }
 }
 
 impl Connection for SurrealDb {
-    fn ping(&self) {
+    fn ping(&self) -> String {
         if let Some(client) = &self.client {
-            println!("{:?}",client);
+            String::from("Pong!")
         } else {
-            println!("SurrealDb client is not connected.");
+            String::from("Connection Failed")
         }
     }
 }
 
 
-impl Connection for DatabaseConnection {
-    fn ping(&self) {
+impl Connection for DatabaseClient {
+    fn ping(&self) -> String {
         match self {
-            DatabaseConnection::Surreal(surrealdb) => surrealdb.ping(),
-            // Add other database types here
+            DatabaseClient::Surreal(surrealdb) => surrealdb.ping(),
         }
     }
 }
@@ -91,7 +90,7 @@ impl Connection for DatabaseConnection {
 // general implementation
 #[async_trait]
 impl Sources for DatabaseSource {
-    async fn connect(&mut self) -> Result<DatabaseConnection, Box<dyn Error>> {
+    async fn connect(&mut self) -> Result<DatabaseClient, Box<dyn Error>> {
         match &self.db_type {
             DatabaseType::SurrealDB => {
                 let surrealdb = SurrealDb { client: None };

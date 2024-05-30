@@ -1,3 +1,4 @@
 pub mod model;
-pub mod db;
-pub mod implementation;
+pub mod client;
+pub mod surrealdb;
+pub mod interface;
