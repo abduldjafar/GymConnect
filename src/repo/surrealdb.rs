@@ -33,4 +33,8 @@ impl DBInterface for SurrealDb {
         let data: Vec<T> = client.select(tab_name).await?;
         Ok(data)
     }
+
+    async fn delete(&self, tab_name: String,id:String) -> Result<bool, Box<dyn Error>>{
+        Ok(false)
+    } 
 }

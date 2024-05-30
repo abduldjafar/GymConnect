@@ -20,4 +20,10 @@ impl DBInterface for DatabaseClient {
         }
     }
 
+    async fn delete(&self, tab_name: String,id:String) -> Result<bool, Box<dyn Error>> {
+        match self {
+            DatabaseClient::Surreal(surrealdb) => surrealdb.delete(tab_name, id).await,
+        }
+    }
+
 }

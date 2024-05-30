@@ -58,3 +58,19 @@ use crate::{config::db::{Connection, Sources}, repo::{ interface::DBInterface, m
 
     Ok(())
 }
+
+#[tokio::test]
+ async fn test_delete_user_record() -> Result<(), Box<dyn std::error::Error>>{
+
+    let mut surreal_db = config::db::DatabaseSource { 
+        db_type: config::db::DatabaseType::SurrealDB
+    };
+       
+    let conn = surreal_db.connect().await?;
+
+    let result = conn.delete(String::from("user"), String::from("id")).await?;
+
+    assert_eq!(true,result);
+
+    Ok(())
+}
