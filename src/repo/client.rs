@@ -1,29 +1,33 @@
-
 use std::error::Error;
-
 use axum::async_trait;
 use serde::{de::DeserializeOwned, Serialize};
 use crate::config::db::DatabaseClient;
 use super::interface::DBInterface;
 
+/* Implementation of the DBInterface trait for DatabaseClient */
 #[async_trait]
 impl DBInterface for DatabaseClient {
-    async fn insert_record<T: Serialize + Sync>(&self, tab_name: String, data: &T) -> Result<bool, Box<dyn Error>> {
+    /* Method to insert a record into the database */
+    async fn insert_record<T: Serialize + Sync>(&self, tb_name: String, data: &T) -> Result<bool, Box<dyn Error>> {
         match self {
-            DatabaseClient::Surreal(surrealdb) => surrealdb.insert_record(tab_name, data).await,
+            DatabaseClient::Surreal(surrealdb) => surrealdb.insert_record(tb_name, data).await,
+            // Add other database client implementations here
         }
     }
 
-    async fn select<T: DeserializeOwned + Sync>(&self, tab_name: String) -> Result<Vec<T>, Box<dyn Error>> {
+    /* Method to select records from the database */
+    async fn select<T: DeserializeOwned + Sync>(&self, tb_name: String) -> Result<Vec<T>, Box<dyn Error>> {
         match self {
-            DatabaseClient::Surreal(surrealdb) => surrealdb.select(tab_name).await,
+            DatabaseClient::Surreal(surrealdb) => surrealdb.select(tb_name).await,
+            // Add other database client implementations here
         }
     }
 
-    async fn delete(&self, tab_name: String,id:String) -> Result<bool, Box<dyn Error>> {
+    /* Method to delete a record from the database */
+    async fn delete(&self, tb_name: String, id: String) -> Result<bool, Box<dyn Error>> {
         match self {
-            DatabaseClient::Surreal(surrealdb) => surrealdb.delete(tab_name, id).await,
+            DatabaseClient::Surreal(surrealdb) => surrealdb.delete(tb_name, id).await,
+            // Add other database client implementations here
         }
     }
-
 }

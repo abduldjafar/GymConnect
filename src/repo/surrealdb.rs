@@ -1,40 +1,45 @@
 use std::error::Error;
-
 use axum::async_trait;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use surrealdb::{engine::remote::ws::Client, sql::Thing, Surreal};
-
+use surrealdb::sql::Thing;
 use crate::config::db::SurrealDb;
-
+use super::interface;
 use interface::DBInterface;
 
-use super::interface;
-
+/* Struct for deserialization of records */
 #[derive(Debug, Deserialize)]
 pub struct Record {
     #[allow(dead_code)]
     id: Thing,
 }
 
-
+/* Implementation of DBInterface for SurrealDb */
 #[async_trait]
 impl DBInterface for SurrealDb {
-    async fn insert_record<T: Serialize + Sync>(&self, tab_name: String, data: &T) -> Result<bool, Box<dyn Error>> {
-        let client = <std::option::Option<Surreal<Client>> as Clone>::clone(&self.client).unwrap();
-        let created: Vec<Record> = client.insert(tab_name).content(data).await?;
+    /* Method to insert a record into the database */
+    async fn insert_record<T: Serialize + Sync>(&self, tb_name: String, data: &T) -> Result<bool, Box<dyn Error>> {
+        // Clone the client
+        let client = self.client.clone().unwrap();
+        // Insert the record into the database
+        let created: Vec<Record> = client.insert(tb_name).content(data).await?;
         
-        dbg!(created);
+        dbg!(created); // Debug output for created records
         
         Ok(true)
     }
     
-    async fn select<T: DeserializeOwned + Sync>(&self, tab_name: String) -> Result<Vec<T>, Box<dyn Error>>{
-        let client = <std::option::Option<Surreal<Client>> as Clone>::clone(&self.client).unwrap();
-        let data: Vec<T> = client.select(tab_name).await?;
+    /* Method to select records from the database */
+    async fn select<T: DeserializeOwned + Sync>(&self, tb_name: String) -> Result<Vec<T>, Box<dyn Error>> {
+        // Clone the client
+        let client = self.client.clone().unwrap();
+        // Select records from the database
+        let data: Vec<T> = client.select(tb_name).await?;
         Ok(data)
     }
 
-    async fn delete(&self, tab_name: String,id:String) -> Result<bool, Box<dyn Error>>{
+    /* Method to delete a record from the database */
+    async fn delete(&self, _tb_name: String, _id: String) -> Result<bool, Box<dyn Error>> {
+        // Placeholder implementation
         Ok(false)
     } 
 }

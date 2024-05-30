@@ -2,18 +2,9 @@ use std::error::Error;
 use axum::async_trait;
 use serde::Deserialize;
 use surrealdb::{engine::remote::ws::{Client, Ws}, opt::auth::Root, sql::Thing, Surreal};
-
 use crate::environment::Environment;
 
-/*SurrealDB Struct,enum,trait Initialization*/
-pub struct SurrealDb {
-    pub client: Option<Surreal<Client>>,
-}
-
-pub struct DatabaseSource {
-    pub db_type: DatabaseType,
-}
-
+/* Define database types and their associated clients */
 pub enum DatabaseType {
     SurrealDB,
     // Add other database types here, e.g., Postgres
@@ -21,32 +12,45 @@ pub enum DatabaseType {
 
 pub enum DatabaseClient {
     Surreal(SurrealDb),
-    // Add other database types here, e.g., Postgres(PostgresDb)
+    // Add other database clients here, e.g., Postgres(PostgresDb)
 }
 
+/* Define the SurrealDb struct */
+pub struct SurrealDb {
+    pub client: Option<Surreal<Client>>,
+}
+
+/* Define the DatabaseSource struct */
+pub struct DatabaseSource {
+    pub db_type: DatabaseType,
+}
+
+/* Struct for deserialization of records */
 #[derive(Debug, Deserialize)]
 struct Record {
     #[allow(dead_code)]
     id: Thing,
 }
 
+/* Trait for initializing a database connection */
 #[async_trait]
 pub trait Initializable {
     async fn init(&self) -> Result<DatabaseClient, Box<dyn Error>>;
 }
 
+/* Trait for generic database connection operations */
 #[async_trait]
 pub trait Connection {
     fn ping(&self) -> String;
 }
 
-
+/* Trait for sources to connect to a database */
 #[async_trait]
 pub trait Sources {
     async fn connect(&mut self) -> Result<DatabaseClient, Box<dyn Error>>;
 }
 
-// surrealDB implementation
+/* Implementation of Initializable for SurrealDb */
 #[async_trait]
 impl Initializable for SurrealDb {
     async fn init(&self) -> Result<DatabaseClient, Box<dyn Error>> {
@@ -57,9 +61,8 @@ impl Initializable for SurrealDb {
         temp_client.signin(Root {
             username: "root",
             password: "root",
-        })
-        .await?;
-    
+        }).await?;
+
         temp_client.use_ns("test").use_db("test").await?;
 
         let client = Some(temp_client);
@@ -67,9 +70,10 @@ impl Initializable for SurrealDb {
     }
 }
 
+/* Implementation of Connection for SurrealDb */
 impl Connection for SurrealDb {
     fn ping(&self) -> String {
-        if let Some(client) = &self.client {
+        if let Some(_client) = &self.client {
             String::from("Pong!")
         } else {
             String::from("Connection Failed")
@@ -77,17 +81,17 @@ impl Connection for SurrealDb {
     }
 }
 
-
+/* Implementation of Connection for DatabaseClient */
 impl Connection for DatabaseClient {
     fn ping(&self) -> String {
         match self {
             DatabaseClient::Surreal(surrealdb) => surrealdb.ping(),
+            // Add other database client pings here
         }
     }
 }
 
-
-// general implementation
+/* Implementation of Sources for DatabaseSource */
 #[async_trait]
 impl Sources for DatabaseSource {
     async fn connect(&mut self) -> Result<DatabaseClient, Box<dyn Error>> {
@@ -96,6 +100,7 @@ impl Sources for DatabaseSource {
                 let surrealdb = SurrealDb { client: None };
                 surrealdb.init().await
             }
+            // Add other database types here
         }
     }
 }
