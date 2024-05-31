@@ -2,10 +2,8 @@ pub mod config;
 pub mod repo;
 
 pub use config::environment;
-use crate::{
-    config::db::{Connection, Sources},
-    repo::{interface::DBInterface, model::User},
-};
+
+use crate::{config::db::{Connection, Sources}, repo::{interface::DBInterface, model::User}};
 
 // Test to check database connection
 #[tokio::test]
