@@ -59,11 +59,11 @@ impl Initializable for SurrealDb {
         let temp_client = Surreal::new::<Ws>(hostname).await?;
 
         temp_client.signin(Root {
-            username: "root",
-            password: "root",
+            username: &env.db_user,
+            password: &env.db_pass,
         }).await?;
 
-        temp_client.use_ns("test").use_db("test").await?;
+        temp_client.use_ns(env.db_namespace).use_db(env.db_name).await?;
 
         let client = Some(temp_client);
         Ok(DatabaseClient::Surreal(SurrealDb { client }))

@@ -1,6 +1,6 @@
 use std::error::Error;
 use axum::async_trait;
-use serde::{de::DeserializeOwned, Serialize};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use crate::config::db::DatabaseClient;
 use super::interface::DBInterface;
 
@@ -24,10 +24,16 @@ impl DBInterface for DatabaseClient {
     }
 
     /* Method to delete a record from the database */
-    async fn delete(&self, tb_name: String, id: String) -> Result<bool, Box<dyn Error>> {
+    async fn delete(&self,id: String) -> Result<bool, Box<dyn Error>> {
         match self {
-            DatabaseClient::Surreal(surrealdb) => surrealdb.delete(tb_name, id).await,
+            DatabaseClient::Surreal(surrealdb) => surrealdb.delete(id).await,
             // Add other database client implementations here
+        }
+    }
+
+    async fn update_record<T: Serialize+for<'de> Deserialize<'de> + Sync>(&self,id:String, tb_name: String, data: &T) -> Result<bool, Box<dyn Error>>{
+        match self {
+            DatabaseClient::Surreal(surrealdb) => surrealdb.update_record(id,tb_name, data).await,
         }
     }
 }

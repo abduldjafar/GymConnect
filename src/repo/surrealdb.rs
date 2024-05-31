@@ -38,8 +38,28 @@ impl DBInterface for SurrealDb {
     }
 
     /* Method to delete a record from the database */
-    async fn delete(&self, _tb_name: String, _id: String) -> Result<bool, Box<dyn Error>> {
+    async fn delete(&self,id: String) -> Result<bool, Box<dyn Error>> {
         // Placeholder implementation
-        Ok(false)
+        let client = self.client.clone().unwrap();
+        let result = client.query(format!("DELETE {}",id)).await?.check();
+
+        match result {
+            Ok(_)=>Ok(true),
+            Err(_) => Ok(false), 
+        }
     } 
+
+    async fn update_record<T>(&self, id: String, tb_name: String, data: &T) -> Result<bool, Box<dyn Error>>
+    where
+        T: Serialize + for<'de> Deserialize<'de> + Sync,
+    {
+        let data_id: Vec<&str> = id.split(':').collect();
+        let client = self.client.clone().unwrap();
+        
+        let updated_result: Option<T> = client
+            .update((tb_name, data_id[1]))
+            .content(data).await?;
+
+        Ok(updated_result.is_some())
+    }
 }
