@@ -36,4 +36,10 @@ impl DBInterface for DatabaseClient {
             DatabaseClient::Surreal(surrealdb) => surrealdb.update_record(id,tb_name, data).await,
         }
     }
+
+    async fn select_with_params<T: DeserializeOwned + Sync>(&self, tb_name: String, param: String) -> Result<Vec<T>, Box<dyn Error>>{
+        match self {
+            DatabaseClient::Surreal(surrealdb) => surrealdb.select_with_params(tb_name, param).await,
+        }
+    }
 }

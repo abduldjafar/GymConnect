@@ -62,4 +62,23 @@ impl DBInterface for SurrealDb {
 
         Ok(updated_result.is_some())
     }
+
+    async fn select_with_params<T: DeserializeOwned + Sync>(&self, tb_name: String, param: String) -> Result<Vec<T>, Box<dyn Error>>{
+        let client = self.client.clone().unwrap();
+
+        let filtered_query = if param.is_empty() {
+            String::new()
+        } else {
+            format!("where {}", param)
+        };
+
+        let sql = format!("SELECT * FROM {} {}",tb_name,filtered_query);
+
+        let mut results = client
+            .query(&sql)
+            .await?;
+        
+        let data: Vec<T> = results.take(1)?;
+        Ok(data)
+    }
 }

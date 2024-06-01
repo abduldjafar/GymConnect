@@ -100,3 +100,19 @@ async fn test_update_user_record() -> Result<(), Box<dyn std::error::Error>> {
     
     Ok(())
 }
+
+#[tokio::test]
+async fn test_select_with_params() -> Result<(), Box<dyn std::error::Error>> {
+
+    let mut surreal_db = config::db::DatabaseSource { 
+        db_type: config::db::DatabaseType::SurrealDB,
+    };
+
+    let conn = surreal_db.connect().await?;
+
+    let result:Vec<User> = conn.select_with_params(String::from("user"), String::from("email = 'abdul.haris.djafar@gmail.com'")).await?;
+
+    assert_ne!(0,result.len());
+
+    Ok(())
+}
