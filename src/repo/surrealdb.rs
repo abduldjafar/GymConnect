@@ -70,23 +70,30 @@ impl DBInterface for SurrealDb {
     }
 
     /* Method to select records with parameters from the database */
-    async fn select_with_params<T: DeserializeOwned + Sync>(
+    async fn select_where<T: DeserializeOwned + Sync>(
         &self,
         tb_name: String,
-        param: String,
+        filter: String,
+        columns: String,
     ) -> Result<Vec<T>, Box<dyn Error>> {
         let client = self.client.clone().unwrap();
 
-        let filtered_query = if param.is_empty() {
+        let filtered_query = if filter.is_empty() {
             String::new()
         } else {
-            format!("where {}", param)
+            format!("where {}", filter)
         };
 
-        let sql = format!("SELECT * FROM {} {}", tb_name, filtered_query);
+        let tb_columns = if columns.is_empty() {
+            String::from(" * ")
+        } else {
+            format!(" {} ", columns)
+        };
+
+        let sql = format!("SELECT {} FROM {} {}", tb_columns, tb_name, filtered_query);
         let mut results = client.query(&sql).await?;
 
-        let data: Vec<T> = results.take(1)?;
+        let data: Vec<T> = results.take(0)?;
         Ok(data)
     }
 }

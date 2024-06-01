@@ -49,14 +49,15 @@ impl DBInterface for DatabaseClient {
         }
     }
 
-    async fn select_with_params<T: DeserializeOwned + Sync>(
+    async fn select_where<T: DeserializeOwned + Sync>(
         &self,
         tb_name: String,
-        param: String,
+        filter: String,
+        columns: String, // separate columns by ',' in string format
     ) -> Result<Vec<T>, Box<dyn Error>> {
         match self {
             DatabaseClient::Surreal(surrealdb) => {
-                surrealdb.select_with_params(tb_name, param).await
+                surrealdb.select_where(tb_name, filter, columns).await
             }
         }
     }

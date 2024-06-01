@@ -30,9 +30,10 @@ pub trait DBInterface {
     ) -> Result<bool, Box<dyn Error>>;
 
     /* Method to select records from the database */
-    async fn select_with_params<T: DeserializeOwned + Sync>(
+    async fn select_where<T: DeserializeOwned + Sync>(
         &self,
         tb_name: String,
-        param: String,
+        filter: String,
+        columns: String, // separate columns by ',' in string format
     ) -> Result<Vec<T>, Box<dyn Error>>;
 }

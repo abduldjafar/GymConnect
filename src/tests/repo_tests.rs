@@ -119,9 +119,10 @@ async fn test_select_with_params() -> Result<(), Box<dyn std::error::Error>> {
     let conn = surreal_db.connect().await?;
 
     let result: Vec<User> = conn
-        .select_with_params(
+        .select_where(
             String::from("user"),
             String::from("email = 'xxxxxxx'"),
+            String::from(""),
         )
         .await?;
 
