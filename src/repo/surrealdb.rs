@@ -1,10 +1,10 @@
-use std::error::Error;
-use axum::async_trait;
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use surrealdb::sql::Thing;
-use crate::config::db::SurrealDb;
 use super::interface;
+use crate::config::db::SurrealDb;
+use axum::async_trait;
 use interface::DBInterface;
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use std::error::Error;
+use surrealdb::sql::Thing;
 
 /* Struct for deserialization of records */
 #[derive(Debug, Deserialize)]
@@ -17,17 +17,24 @@ pub struct Record {
 #[async_trait]
 impl DBInterface for SurrealDb {
     /* Method to insert a record into the database */
-    async fn insert_record<T: Serialize + Sync>(&self, tb_name: String, data: &T) -> Result<bool, Box<dyn Error>> {
+    async fn insert_record<T: Serialize + Sync>(
+        &self,
+        tb_name: String,
+        data: &T,
+    ) -> Result<bool, Box<dyn Error>> {
         let client = self.client.clone().unwrap();
         let created: Vec<Record> = client.insert(tb_name).content(data).await?;
-        
+
         dbg!(created); // Debug output for created records
-        
+
         Ok(true)
     }
-    
+
     /* Method to select records from the database */
-    async fn select<T: DeserializeOwned + Sync>(&self, tb_name: String) -> Result<Vec<T>, Box<dyn Error>> {
+    async fn select<T: DeserializeOwned + Sync>(
+        &self,
+        tb_name: String,
+    ) -> Result<Vec<T>, Box<dyn Error>> {
         let client = self.client.clone().unwrap();
         let data: Vec<T> = client.select(tb_name).await?;
         Ok(data)
@@ -45,23 +52,29 @@ impl DBInterface for SurrealDb {
     }
 
     /* Method to update a record in the database */
-    async fn update_record<T>(&self, id: String, tb_name: String, data: &T) -> Result<bool, Box<dyn Error>>
+    async fn update_record<T>(
+        &self,
+        id: String,
+        tb_name: String,
+        data: &T,
+    ) -> Result<bool, Box<dyn Error>>
     where
         T: Serialize + for<'de> Deserialize<'de> + Sync,
     {
         let data_id: Vec<&str> = id.split(':').collect();
         let client = self.client.clone().unwrap();
-        
-        let updated_result: Option<T> = client
-            .update((tb_name, data_id[1]))
-            .content(data)
-            .await?;
+
+        let updated_result: Option<T> = client.update((tb_name, data_id[1])).content(data).await?;
 
         Ok(updated_result.is_some())
     }
 
     /* Method to select records with parameters from the database */
-    async fn select_with_params<T: DeserializeOwned + Sync>(&self, tb_name: String, param: String) -> Result<Vec<T>, Box<dyn Error>> {
+    async fn select_with_params<T: DeserializeOwned + Sync>(
+        &self,
+        tb_name: String,
+        param: String,
+    ) -> Result<Vec<T>, Box<dyn Error>> {
         let client = self.client.clone().unwrap();
 
         let filtered_query = if param.is_empty() {
@@ -72,7 +85,7 @@ impl DBInterface for SurrealDb {
 
         let sql = format!("SELECT * FROM {} {}", tb_name, filtered_query);
         let mut results = client.query(&sql).await?;
-        
+
         let data: Vec<T> = results.take(1)?;
         Ok(data)
     }

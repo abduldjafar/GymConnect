@@ -1,14 +1,18 @@
-use std::error::Error;
+use super::interface::DBInterface;
+use crate::config::db::DatabaseClient;
 use axum::async_trait;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use crate::config::db::DatabaseClient;
-use super::interface::DBInterface;
+use std::error::Error;
 
 /* Implementation of the DBInterface trait for DatabaseClient */
 #[async_trait]
 impl DBInterface for DatabaseClient {
     /* Method to insert a record into the database */
-    async fn insert_record<T: Serialize + Sync>(&self, tb_name: String, data: &T) -> Result<bool, Box<dyn Error>> {
+    async fn insert_record<T: Serialize + Sync>(
+        &self,
+        tb_name: String,
+        data: &T,
+    ) -> Result<bool, Box<dyn Error>> {
         match self {
             DatabaseClient::Surreal(surrealdb) => surrealdb.insert_record(tb_name, data).await,
             // Add other database client implementations here
@@ -16,7 +20,10 @@ impl DBInterface for DatabaseClient {
     }
 
     /* Method to select records from the database */
-    async fn select<T: DeserializeOwned + Sync>(&self, tb_name: String) -> Result<Vec<T>, Box<dyn Error>> {
+    async fn select<T: DeserializeOwned + Sync>(
+        &self,
+        tb_name: String,
+    ) -> Result<Vec<T>, Box<dyn Error>> {
         match self {
             DatabaseClient::Surreal(surrealdb) => surrealdb.select(tb_name).await,
             // Add other database client implementations here
@@ -24,22 +31,33 @@ impl DBInterface for DatabaseClient {
     }
 
     /* Method to delete a record from the database */
-    async fn delete(&self,id: String) -> Result<bool, Box<dyn Error>> {
+    async fn delete(&self, id: String) -> Result<bool, Box<dyn Error>> {
         match self {
             DatabaseClient::Surreal(surrealdb) => surrealdb.delete(id).await,
             // Add other database client implementations here
         }
     }
 
-    async fn update_record<T: Serialize+for<'de> Deserialize<'de> + Sync>(&self,id:String, tb_name: String, data: &T) -> Result<bool, Box<dyn Error>>{
+    async fn update_record<T: Serialize + for<'de> Deserialize<'de> + Sync>(
+        &self,
+        id: String,
+        tb_name: String,
+        data: &T,
+    ) -> Result<bool, Box<dyn Error>> {
         match self {
-            DatabaseClient::Surreal(surrealdb) => surrealdb.update_record(id,tb_name, data).await,
+            DatabaseClient::Surreal(surrealdb) => surrealdb.update_record(id, tb_name, data).await,
         }
     }
 
-    async fn select_with_params<T: DeserializeOwned + Sync>(&self, tb_name: String, param: String) -> Result<Vec<T>, Box<dyn Error>>{
+    async fn select_with_params<T: DeserializeOwned + Sync>(
+        &self,
+        tb_name: String,
+        param: String,
+    ) -> Result<Vec<T>, Box<dyn Error>> {
         match self {
-            DatabaseClient::Surreal(surrealdb) => surrealdb.select_with_params(tb_name, param).await,
+            DatabaseClient::Surreal(surrealdb) => {
+                surrealdb.select_with_params(tb_name, param).await
+            }
         }
     }
 }
