@@ -18,7 +18,7 @@ async fn test_insert_user_record() -> Result<(), Box<dyn std::error::Error>> {
     let user = User {
         username: String::from("koteka"),
         user_type: String::from("gymnast"),
-        email: String::from("abdul.haris.djafar@gmail.com"),
+        email: String::from("xxxxxxx"),
         created_at: None,
         updated_at: None,
         password: String::from("asoigeboi"),
@@ -121,7 +121,7 @@ async fn test_select_with_params() -> Result<(), Box<dyn std::error::Error>> {
     let result: Vec<User> = conn
         .select_with_params(
             String::from("user"),
-            String::from("email = 'abdul.haris.djafar@gmail.com'"),
+            String::from("email = 'xxxxxxx'"),
         )
         .await?;
 
