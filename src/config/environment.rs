@@ -7,6 +7,8 @@ pub struct  Environment {
     pub db_port: String,
     pub db_user: String,
     pub db_pass: String,
+    pub db_name: String,
+    pub db_namespace: String
 }
 
 
@@ -16,12 +18,16 @@ impl Environment{
         let db_port = env::var("DB_PORT").unwrap_or(String::from("none"));
         let db_user = env::var("DB_USER").unwrap_or(String::from("none"));
         let db_pass = env::var("DB_PASS").unwrap_or(String::from("none"));
+        let db_name = env::var("DB_NAME").unwrap_or(String::from("none"));
+        let db_namespace = env::var("DB_NAMESPACE").unwrap_or(String::from("none"));
 
         Environment{
             db_host,
             db_port,
             db_user,
-            db_pass
+            db_pass,
+            db_name,
+            db_namespace
         }
     }
 }
