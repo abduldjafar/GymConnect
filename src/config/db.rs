@@ -1,8 +1,13 @@
-use std::error::Error;
+use crate::environment::Environment;
 use axum::async_trait;
 use serde::Deserialize;
-use surrealdb::{engine::remote::ws::{Client, Ws}, opt::auth::Root, sql::Thing, Surreal};
-use crate::environment::Environment;
+use std::error::Error;
+use surrealdb::{
+    engine::remote::ws::{Client, Ws},
+    opt::auth::Root,
+    sql::Thing,
+    Surreal,
+};
 
 /* Define database types and their associated clients */
 pub enum DatabaseType {
@@ -58,12 +63,17 @@ impl Initializable for SurrealDb {
         let hostname = format!("{}:{}", env.db_host, env.db_port);
         let temp_client = Surreal::new::<Ws>(hostname).await?;
 
-        temp_client.signin(Root {
-            username: &env.db_user,
-            password: &env.db_pass,
-        }).await?;
+        temp_client
+            .signin(Root {
+                username: &env.db_user,
+                password: &env.db_pass,
+            })
+            .await?;
 
-        temp_client.use_ns(env.db_namespace).use_db(env.db_name).await?;
+        temp_client
+            .use_ns(env.db_namespace)
+            .use_db(env.db_name)
+            .await?;
 
         let client = Some(temp_client);
         Ok(DatabaseClient::Surreal(SurrealDb { client }))
@@ -99,8 +109,7 @@ impl Sources for DatabaseSource {
             DatabaseType::SurrealDB => {
                 let surrealdb = SurrealDb { client: None };
                 surrealdb.init().await
-            }
-            // Add other database types here
+            } // Add other database types here
         }
     }
 }

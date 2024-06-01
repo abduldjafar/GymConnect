@@ -1,19 +1,17 @@
-
 use std::env;
 
-#[derive(Debug,PartialEq)]
-pub struct  Environment {
+#[derive(Debug, PartialEq)]
+pub struct Environment {
     pub db_host: String,
     pub db_port: String,
     pub db_user: String,
     pub db_pass: String,
     pub db_name: String,
-    pub db_namespace: String
+    pub db_namespace: String,
 }
 
-
-impl Environment{
-    pub fn new() -> Self{
+impl Environment {
+    pub fn new() -> Self {
         let db_host = env::var("DB_HOST").unwrap_or(String::from("none"));
         let db_port = env::var("DB_PORT").unwrap_or(String::from("none"));
         let db_user = env::var("DB_USER").unwrap_or(String::from("none"));
@@ -21,13 +19,13 @@ impl Environment{
         let db_name = env::var("DB_NAME").unwrap_or(String::from("none"));
         let db_namespace = env::var("DB_NAMESPACE").unwrap_or(String::from("none"));
 
-        Environment{
+        Environment {
             db_host,
             db_port,
             db_user,
             db_pass,
             db_name,
-            db_namespace
+            db_namespace,
         }
     }
 }

@@ -5,4 +5,5 @@ export DB_PASS=root
 export DB_NAME=test
 export DB_NAMESPACE=test
 
+rustfmt src/*/*.rs --edition 2024 
 cargo test
