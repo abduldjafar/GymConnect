@@ -1,5 +1,6 @@
 pub mod config;
 pub mod repo;
+pub mod services;
 
 pub use config::environment;
 
