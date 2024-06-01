@@ -18,9 +18,7 @@ pub struct Record {
 impl DBInterface for SurrealDb {
     /* Method to insert a record into the database */
     async fn insert_record<T: Serialize + Sync>(&self, tb_name: String, data: &T) -> Result<bool, Box<dyn Error>> {
-        // Clone the client
         let client = self.client.clone().unwrap();
-        // Insert the record into the database
         let created: Vec<Record> = client.insert(tb_name).content(data).await?;
         
         dbg!(created); // Debug output for created records
@@ -30,25 +28,23 @@ impl DBInterface for SurrealDb {
     
     /* Method to select records from the database */
     async fn select<T: DeserializeOwned + Sync>(&self, tb_name: String) -> Result<Vec<T>, Box<dyn Error>> {
-        // Clone the client
         let client = self.client.clone().unwrap();
-        // Select records from the database
         let data: Vec<T> = client.select(tb_name).await?;
         Ok(data)
     }
 
     /* Method to delete a record from the database */
-    async fn delete(&self,id: String) -> Result<bool, Box<dyn Error>> {
-        // Placeholder implementation
+    async fn delete(&self, id: String) -> Result<bool, Box<dyn Error>> {
         let client = self.client.clone().unwrap();
-        let result = client.query(format!("DELETE {}",id)).await?.check();
+        let result = client.query(format!("DELETE {}", id)).await?.check();
 
         match result {
-            Ok(_)=>Ok(true),
-            Err(_) => Ok(false), 
+            Ok(_) => Ok(true),
+            Err(_) => Ok(false),
         }
-    } 
+    }
 
+    /* Method to update a record in the database */
     async fn update_record<T>(&self, id: String, tb_name: String, data: &T) -> Result<bool, Box<dyn Error>>
     where
         T: Serialize + for<'de> Deserialize<'de> + Sync,
@@ -58,12 +54,14 @@ impl DBInterface for SurrealDb {
         
         let updated_result: Option<T> = client
             .update((tb_name, data_id[1]))
-            .content(data).await?;
+            .content(data)
+            .await?;
 
         Ok(updated_result.is_some())
     }
 
-    async fn select_with_params<T: DeserializeOwned + Sync>(&self, tb_name: String, param: String) -> Result<Vec<T>, Box<dyn Error>>{
+    /* Method to select records with parameters from the database */
+    async fn select_with_params<T: DeserializeOwned + Sync>(&self, tb_name: String, param: String) -> Result<Vec<T>, Box<dyn Error>> {
         let client = self.client.clone().unwrap();
 
         let filtered_query = if param.is_empty() {
@@ -72,11 +70,8 @@ impl DBInterface for SurrealDb {
             format!("where {}", param)
         };
 
-        let sql = format!("SELECT * FROM {} {}",tb_name,filtered_query);
-
-        let mut results = client
-            .query(&sql)
-            .await?;
+        let sql = format!("SELECT * FROM {} {}", tb_name, filtered_query);
+        let mut results = client.query(&sql).await?;
         
         let data: Vec<T> = results.take(1)?;
         Ok(data)
