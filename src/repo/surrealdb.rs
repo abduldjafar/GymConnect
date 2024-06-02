@@ -17,17 +17,17 @@ pub struct Record {
 #[async_trait]
 impl DBInterface for SurrealDb {
     /* Method to insert a record into the database */
-    async fn insert_record<T: Serialize + Sync>(
+    async fn insert_record<T: Serialize + Sync, U: DeserializeOwned + Sync + Clone>(
         &self,
         tb_name: String,
         data: &T,
-    ) -> Result<bool, Box<dyn Error>> {
+    ) -> Result<Option<U>, Box<dyn Error>> {
         let client = self.client.clone().unwrap();
-        let created: Vec<Record> = client.insert(tb_name).content(data).await?;
+        let created: Vec<U> = client.insert(tb_name).content(data).await?;
 
-        dbg!(created); // Debug output for created records
+        let record = created.to_vec().get(0).map(|x| x.clone());
 
-        Ok(true)
+        Ok(record)
     }
 
     /* Method to select records from the database */

@@ -19,3 +19,8 @@ pub struct Gym {
     pub created_at: Option<Datetime>, // Timestamp when the user was created
     pub updated_at: Option<Datetime>, // Timestamp when the user was last updated
 }
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct Id {
+    pub id: Thing, // Username of the user           // Password of the user
+}

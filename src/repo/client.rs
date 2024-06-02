@@ -8,11 +8,11 @@ use std::error::Error;
 #[async_trait]
 impl DBInterface for DatabaseClient {
     /* Method to insert a record into the database */
-    async fn insert_record<T: Serialize + Sync>(
+    async fn insert_record<T: Serialize + Sync, U: DeserializeOwned + Sync + Clone>(
         &self,
         tb_name: String,
         data: &T,
-    ) -> Result<bool, Box<dyn Error>> {
+    ) -> Result<Option<U>, Box<dyn Error>> {
         match self {
             DatabaseClient::Surreal(surrealdb) => surrealdb.insert_record(tb_name, data).await,
             // Add other database client implementations here

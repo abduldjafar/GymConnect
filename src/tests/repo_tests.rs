@@ -1,6 +1,10 @@
 use crate::{
     config::{self, db::Sources},
-    repo::{interface::DBInterface, model::User},
+    repo::{
+        interface::DBInterface,
+        model::{Id, User},
+        surrealdb::Record,
+    },
 };
 
 // Test to insert a user record into the database
@@ -25,10 +29,9 @@ async fn test_insert_user_record() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     // Insert the user record
-    let result = conn.insert_record(String::from("user"), &user).await?;
+    let query_result: Option<Id> = conn.insert_record(String::from("user"), &user).await?;
 
-    // Assert insertion is successful
-    assert_eq!(true, result);
+    assert_ne!(None, query_result);
 
     Ok(())
 }
