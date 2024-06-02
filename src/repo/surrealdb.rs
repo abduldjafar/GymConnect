@@ -17,16 +17,18 @@ pub struct Record {
 #[async_trait]
 impl DBInterface for SurrealDb {
     /* Method to insert a record into the database */
-    async fn insert_record<T: Serialize + Sync, U: DeserializeOwned + Sync + Clone>(
+    async fn insert_record<T, U>(
         &self,
         tb_name: String,
         data: &T,
-    ) -> Result<Option<U>, Box<dyn Error>> {
+    ) -> Result<Option<U>, Box<dyn Error>>
+    where
+        T: Serialize + Sync,
+        U: DeserializeOwned + Sync + Clone,
+    {
         let client = self.client.clone().unwrap();
         let created: Vec<U> = client.insert(tb_name).content(data).await?;
-
-        let record = created.to_vec().get(0).map(|x| x.clone());
-
+        let record = created.get(0).cloned();
         Ok(record)
     }
 
@@ -63,7 +65,6 @@ impl DBInterface for SurrealDb {
     {
         let data_id: Vec<&str> = id.split(':').collect();
         let client = self.client.clone().unwrap();
-
         let updated_result: Option<T> = client.update((tb_name, data_id[1])).content(data).await?;
 
         Ok(updated_result.is_some())
@@ -92,7 +93,6 @@ impl DBInterface for SurrealDb {
 
         let sql = format!("SELECT {} FROM {} {}", tb_columns, tb_name, filtered_query);
         let mut results = client.query(&sql).await?;
-
         let data: Vec<T> = results.take(0)?;
         Ok(data)
     }

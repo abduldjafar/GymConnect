@@ -5,7 +5,6 @@ use crate::{
         model::{Gym, Id, User},
     },
 };
-use serde::{de::DeserializeOwned, Serialize};
 use std::error::Error;
 
 pub struct GymServices {
