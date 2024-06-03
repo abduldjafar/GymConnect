@@ -12,8 +12,9 @@ pub struct GymServices {
 }
 
 impl GymServices {
-    pub async fn register(&self, data: &User) -> Result<Option<Id>, Box<dyn Error>> {
+    pub async fn register_profile(&self, data: &User) -> Result<Option<Id>, Box<dyn Error>> {
         let repo = &self.repo;
+
         let insert_into_user_tb: Option<Id> =
             repo.insert_record(String::from("user"), data).await?;
 
@@ -32,5 +33,18 @@ impl GymServices {
             repo.insert_record(String::from("gym"), &gym_data).await?;
 
         Ok(insert_into_gym_tb)
+    }
+
+    pub async fn update_profile(
+        &self,
+        tb_name: String,
+        data: &Gym,
+        id: String,
+    ) -> Result<(), Box<dyn Error>> {
+        let repo = &self.repo;
+
+        repo.update_record(id, tb_name, data).await?;
+
+        Ok(())
     }
 }

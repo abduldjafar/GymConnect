@@ -126,7 +126,7 @@ async fn test_select_with_params() -> Result<(), Box<dyn std::error::Error>> {
     let result: Vec<User> = conn
         .select_where(
             String::from("user"),
-            String::from("email = 'xxxxxxx'"),
+            String::from("email = 'uhut@asoi.com'"),
             String::from(""),
         )
         .await?;

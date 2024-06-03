@@ -24,7 +24,7 @@ async fn services_gym_test_register() -> Result<(), Box<dyn std::error::Error>> 
         password: String::from("asoigeboi"),
     };
 
-    let register_gym_user = gym_services.register(&user).await?;
+    let register_gym_user = gym_services.register_profile(&user).await?;
 
     assert_ne!(None, register_gym_user);
 
