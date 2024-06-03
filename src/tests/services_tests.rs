@@ -18,7 +18,7 @@ async fn services_gym_test_register() -> Result<(), Box<dyn std::error::Error>> 
     let user = User {
         username: String::from("koteka"),
         user_type: String::from("gym"),
-        email: String::from("xxxxxxx"),
+        email: String::from("koteka@asoi.com"),
         created_at: None,
         updated_at: None,
         password: String::from("asoigeboi"),

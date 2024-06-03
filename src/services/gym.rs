@@ -23,6 +23,9 @@ impl GymServices {
             user_id: std::option::Option::Some(gym_id),
             created_at: None,
             updated_at: None,
+            address: String::from(""),
+            owner_name: String::from(""),
+            phone: 0,
         };
 
         let insert_into_gym_tb: Option<Id> =

@@ -1,3 +1,5 @@
+use surrealdb::sql::Datetime;
+
 use crate::{
     config::{self, db::Sources},
     repo::{
@@ -22,7 +24,7 @@ async fn test_insert_user_record() -> Result<(), Box<dyn std::error::Error>> {
     let user = User {
         username: String::from("koteka"),
         user_type: String::from("gymnast"),
-        email: String::from("xxxxxxx"),
+        email: String::from("uhut@asoi.com"),
         created_at: None,
         updated_at: None,
         password: String::from("asoigeboi"),
@@ -89,9 +91,9 @@ async fn test_update_user_record() -> Result<(), Box<dyn std::error::Error>> {
     let user = User {
         username: String::from("koteka"),
         user_type: String::from("gymnast"),
-        email: String::from("xxxxxx"),
-        created_at: None,
-        updated_at: None,
+        email: String::from("asoi@ixi.com"),
+        created_at: Some(Datetime::default()),
+        updated_at: Some(Datetime::default()),
         password: String::from("asasas"),
     };
 

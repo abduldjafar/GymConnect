@@ -16,6 +16,9 @@ pub struct User {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Gym {
     pub user_id: Option<Thing>,
+    pub address: String,
+    pub owner_name: String,
+    pub phone: i32,
     pub created_at: Option<Datetime>, // Timestamp when the user was created
     pub updated_at: Option<Datetime>, // Timestamp when the user was last updated
 }
