@@ -1,4 +1,4 @@
-use crate::environment::Environment;
+use crate::{environment::Environment, errors::Result};
 use axum::async_trait;
 use serde::Deserialize;
 use std::error::Error;
@@ -39,7 +39,7 @@ struct Record {
 /* Trait for initializing a database connection */
 #[async_trait]
 pub trait Initializable {
-    async fn init(&self) -> Result<DatabaseClient, Box<dyn Error>>;
+    async fn init(&self) -> Result<DatabaseClient>;
 }
 
 /* Trait for generic database connection operations */
@@ -51,13 +51,13 @@ pub trait Connection {
 /* Trait for sources to connect to a database */
 #[async_trait]
 pub trait Sources {
-    async fn connect(&mut self) -> Result<DatabaseClient, Box<dyn Error>>;
+    async fn connect(&mut self) -> Result<DatabaseClient>;
 }
 
 /* Implementation of Initializable for SurrealDb */
 #[async_trait]
 impl Initializable for SurrealDb {
-    async fn init(&self) -> Result<DatabaseClient, Box<dyn Error>> {
+    async fn init(&self) -> Result<DatabaseClient> {
         let env = Environment::new();
         let hostname = format!("{}:{}", env.db_host, env.db_port);
         let temp_client = Surreal::new::<Ws>(hostname).await?;
@@ -103,7 +103,7 @@ impl Connection for DatabaseClient {
 /* Implementation of Sources for DatabaseSource */
 #[async_trait]
 impl Sources for DatabaseSource {
-    async fn connect(&mut self) -> Result<DatabaseClient, Box<dyn Error>> {
+    async fn connect(&mut self) -> Result<DatabaseClient> {
         match &self.db_type {
             DatabaseType::SurrealDB => {
                 let surrealdb = SurrealDb { client: None };

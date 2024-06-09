@@ -1,5 +1,6 @@
 use crate::{
     config::db::DatabaseClient,
+    errors::{self, Result},
     repo::{
         interface::DBInterface,
         model::{Gym, Id, User},
@@ -12,7 +13,7 @@ pub struct GymServices {
 }
 
 impl GymServices {
-    pub async fn register_profile(&self, data: &User) -> Result<Option<Id>, Box<dyn Error>> {
+    pub async fn register_profile(&self, data: &User) -> Result<Option<Id>> {
         let repo = &self.repo;
 
         let insert_into_user_tb: Option<Id> =
@@ -35,12 +36,7 @@ impl GymServices {
         Ok(insert_into_gym_tb)
     }
 
-    pub async fn update_profile(
-        &self,
-        tb_name: String,
-        data: &Gym,
-        id: String,
-    ) -> Result<(), Box<dyn Error>> {
+    pub async fn update_profile(&self, tb_name: String, data: &Gym, id: String) -> Result<()> {
         let repo = &self.repo;
 
         repo.update_record(id, tb_name, data).await?;

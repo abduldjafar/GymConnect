@@ -1,6 +1,7 @@
 use axum::async_trait;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use std::error::Error;
+
+use crate::errors::Result;
 
 /* Trait for database interface operations */
 #[async_trait]
@@ -10,16 +11,13 @@ pub trait DBInterface {
         &self,
         tb_name: String,
         data: &T,
-    ) -> Result<Option<U>, Box<dyn Error>>;
+    ) -> Result<Option<U>>;
 
     /* Method to select records from the database */
-    async fn select<T: DeserializeOwned + Sync>(
-        &self,
-        tb_name: String,
-    ) -> Result<Vec<T>, Box<dyn Error>>;
+    async fn select<T: DeserializeOwned + Sync>(&self, tb_name: String) -> Result<Vec<T>>;
 
     /* Method to delete a record from the database */
-    async fn delete(&self, id: String) -> Result<bool, Box<dyn Error>>;
+    async fn delete(&self, id: String) -> Result<bool>;
 
     /* Method to update a record into the database */
     async fn update_record<T: Serialize + for<'de> Deserialize<'de> + Sync>(
@@ -27,7 +25,7 @@ pub trait DBInterface {
         id: String,
         tb_name: String,
         data: &T,
-    ) -> Result<bool, Box<dyn Error>>;
+    ) -> Result<bool>;
 
     /* Method to select records from the database */
     async fn select_where<T: DeserializeOwned + Sync>(
@@ -35,5 +33,5 @@ pub trait DBInterface {
         tb_name: String,
         filter: String,
         columns: String, // separate columns by ',' in string format
-    ) -> Result<Vec<T>, Box<dyn Error>>;
+    ) -> Result<Vec<T>>;
 }

@@ -1,11 +1,12 @@
 use crate::{
     config::{self, db::Sources},
+    errors::Result,
     repo::model::User,
     services::gym::GymServices,
 };
 
 #[tokio::test]
-async fn services_gym_test_register() -> Result<(), Box<dyn std::error::Error>> {
+async fn services_gym_test_register() -> Result<()> {
     let mut surreal_db = config::db::DatabaseSource {
         db_type: config::db::DatabaseType::SurrealDB,
     };
@@ -32,16 +33,16 @@ async fn services_gym_test_register() -> Result<(), Box<dyn std::error::Error>> 
 }
 
 #[tokio::test]
-async fn services_gym_test_update() -> Result<(), Box<dyn std::error::Error>> {
+async fn services_gym_test_update() -> Result<()> {
     Ok(())
 }
 
 #[tokio::test]
-async fn services_gym_test_delete_by_id() -> Result<(), Box<dyn std::error::Error>> {
+async fn services_gym_test_delete_by_id() -> Result<()> {
     Ok(())
 }
 
 #[tokio::test]
-async fn services_gym_test_select_by_id() -> Result<(), Box<dyn std::error::Error>> {
+async fn services_gym_test_select_by_id() -> Result<()> {
     Ok(())
 }

@@ -1,5 +1,5 @@
 use super::interface::DBInterface;
-use crate::config::db::DatabaseClient;
+use crate::{config::db::DatabaseClient, errors::Result};
 use axum::async_trait;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 use std::error::Error;
@@ -12,7 +12,7 @@ impl DBInterface for DatabaseClient {
         &self,
         tb_name: String,
         data: &T,
-    ) -> Result<Option<U>, Box<dyn Error>> {
+    ) -> Result<Option<U>> {
         match self {
             DatabaseClient::Surreal(surrealdb) => surrealdb.insert_record(tb_name, data).await,
             // Add other database client implementations here
@@ -20,10 +20,7 @@ impl DBInterface for DatabaseClient {
     }
 
     /* Method to select records from the database */
-    async fn select<T: DeserializeOwned + Sync>(
-        &self,
-        tb_name: String,
-    ) -> Result<Vec<T>, Box<dyn Error>> {
+    async fn select<T: DeserializeOwned + Sync>(&self, tb_name: String) -> Result<Vec<T>> {
         match self {
             DatabaseClient::Surreal(surrealdb) => surrealdb.select(tb_name).await,
             // Add other database client implementations here
@@ -31,7 +28,7 @@ impl DBInterface for DatabaseClient {
     }
 
     /* Method to delete a record from the database */
-    async fn delete(&self, id: String) -> Result<bool, Box<dyn Error>> {
+    async fn delete(&self, id: String) -> Result<bool> {
         match self {
             DatabaseClient::Surreal(surrealdb) => surrealdb.delete(id).await,
             // Add other database client implementations here
@@ -43,7 +40,7 @@ impl DBInterface for DatabaseClient {
         id: String,
         tb_name: String,
         data: &T,
-    ) -> Result<bool, Box<dyn Error>> {
+    ) -> Result<bool> {
         match self {
             DatabaseClient::Surreal(surrealdb) => surrealdb.update_record(id, tb_name, data).await,
         }
@@ -54,7 +51,7 @@ impl DBInterface for DatabaseClient {
         tb_name: String,
         filter: String,
         columns: String, // separate columns by ',' in string format
-    ) -> Result<Vec<T>, Box<dyn Error>> {
+    ) -> Result<Vec<T>> {
         match self {
             DatabaseClient::Surreal(surrealdb) => {
                 surrealdb.select_where(tb_name, filter, columns).await

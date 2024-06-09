@@ -2,6 +2,7 @@ use surrealdb::sql::Datetime;
 
 use crate::{
     config::{self, db::Sources},
+    errors::Result,
     repo::{
         interface::DBInterface,
         model::{Id, User},
@@ -11,7 +12,7 @@ use crate::{
 
 // Test to insert a user record into the database
 #[tokio::test]
-async fn test_insert_user_record() -> Result<(), Box<dyn std::error::Error>> {
+async fn test_insert_user_record() -> Result<()> {
     // Initialize database source
     let mut surreal_db = config::db::DatabaseSource {
         db_type: config::db::DatabaseType::SurrealDB,
@@ -40,7 +41,7 @@ async fn test_insert_user_record() -> Result<(), Box<dyn std::error::Error>> {
 
 // Test to select user records from the database
 #[tokio::test]
-async fn test_select_user_record() -> Result<(), Box<dyn std::error::Error>> {
+async fn test_select_user_record() -> Result<()> {
     // Initialize database source
     let mut surreal_db = config::db::DatabaseSource {
         db_type: config::db::DatabaseType::SurrealDB,
@@ -60,7 +61,7 @@ async fn test_select_user_record() -> Result<(), Box<dyn std::error::Error>> {
 
 // Test to delete a user record from the database
 #[tokio::test]
-async fn test_delete_user_record() -> Result<(), Box<dyn std::error::Error>> {
+async fn test_delete_user_record() -> Result<()> {
     // Initialize database source
     let mut surreal_db = config::db::DatabaseSource {
         db_type: config::db::DatabaseType::SurrealDB,
@@ -81,7 +82,7 @@ async fn test_delete_user_record() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[tokio::test]
-async fn test_update_user_record() -> Result<(), Box<dyn std::error::Error>> {
+async fn test_update_user_record() -> Result<()> {
     // Initialize database source
     let mut surreal_db = config::db::DatabaseSource {
         db_type: config::db::DatabaseType::SurrealDB,
@@ -116,7 +117,7 @@ async fn test_update_user_record() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[tokio::test]
-async fn test_select_with_params() -> Result<(), Box<dyn std::error::Error>> {
+async fn test_select_with_params() -> Result<()> {
     let mut surreal_db = config::db::DatabaseSource {
         db_type: config::db::DatabaseType::SurrealDB,
     };

@@ -1,5 +1,5 @@
 use super::interface;
-use crate::config::db::SurrealDb;
+use crate::{config::db::SurrealDb, errors::Result};
 use axum::async_trait;
 use interface::DBInterface;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
@@ -17,11 +17,7 @@ pub struct Record {
 #[async_trait]
 impl DBInterface for SurrealDb {
     /* Method to insert a record into the database */
-    async fn insert_record<T, U>(
-        &self,
-        tb_name: String,
-        data: &T,
-    ) -> Result<Option<U>, Box<dyn Error>>
+    async fn insert_record<T, U>(&self, tb_name: String, data: &T) -> Result<Option<U>>
     where
         T: Serialize + Sync,
         U: DeserializeOwned + Sync + Clone,
@@ -33,17 +29,14 @@ impl DBInterface for SurrealDb {
     }
 
     /* Method to select records from the database */
-    async fn select<T: DeserializeOwned + Sync>(
-        &self,
-        tb_name: String,
-    ) -> Result<Vec<T>, Box<dyn Error>> {
+    async fn select<T: DeserializeOwned + Sync>(&self, tb_name: String) -> Result<Vec<T>> {
         let client = self.client.clone().unwrap();
         let data: Vec<T> = client.select(tb_name).await?;
         Ok(data)
     }
 
     /* Method to delete a record from the database */
-    async fn delete(&self, id: String) -> Result<bool, Box<dyn Error>> {
+    async fn delete(&self, id: String) -> Result<bool> {
         let client = self.client.clone().unwrap();
         let result = client.query(format!("DELETE {}", id)).await?.check();
 
@@ -54,12 +47,7 @@ impl DBInterface for SurrealDb {
     }
 
     /* Method to update a record in the database */
-    async fn update_record<T>(
-        &self,
-        id: String,
-        tb_name: String,
-        data: &T,
-    ) -> Result<bool, Box<dyn Error>>
+    async fn update_record<T>(&self, id: String, tb_name: String, data: &T) -> Result<bool>
     where
         T: Serialize + for<'de> Deserialize<'de> + Sync,
     {
@@ -76,7 +64,7 @@ impl DBInterface for SurrealDb {
         tb_name: String,
         filter: String,
         columns: String,
-    ) -> Result<Vec<T>, Box<dyn Error>> {
+    ) -> Result<Vec<T>> {
         let client = self.client.clone().unwrap();
 
         let filtered_query = if filter.is_empty() {

@@ -1,9 +1,11 @@
-use koteka_gym::{config::{self, db::Sources}, repo::{interface::DBInterface, model::{Id, User}}};
+use koteka_gym::{config::{self, db::Sources}, engine::engine::{self, Cmd, EngineType}, errors::Result, repo::{interface::DBInterface, model::{Id, User}}};
 
 
 
 #[tokio::main]
-async fn main() -> Result<(),Box<dyn std::error::Error> >{
-    println!("Coming soon...");
+async fn main() -> Result<()>{
+    let engine = EngineType::Axum;
+    engine.run().await?;
     Ok(())
 }
+
