@@ -3,7 +3,6 @@ use crate::{config::db::SurrealDb, errors::Result};
 use axum::async_trait;
 use interface::DBInterface;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use std::error::Error;
 use surrealdb::sql::Thing;
 
 /* Struct for deserialization of records */

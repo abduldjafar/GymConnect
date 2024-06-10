@@ -2,7 +2,6 @@ use super::interface::DBInterface;
 use crate::{config::db::DatabaseClient, errors::Result};
 use axum::async_trait;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use std::error::Error;
 
 /* Implementation of the DBInterface trait for DatabaseClient */
 #[async_trait]

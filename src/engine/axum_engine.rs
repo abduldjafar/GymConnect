@@ -1,17 +1,30 @@
-use axum::{routing::get, Router};
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+use axum::{routing::post, Router};
 
-pub async fn run() {
-    let routes_all = Router::new().merge(routes());
+use crate::{
+    config::{self, db::Sources},
+    errors::Result,
+    router::axum_router::gym::register_gym_user,
+    services::gym::GymServices,
+};
+
+pub async fn run() -> Result<()> {
+    let mut surreal_db = config::db::DatabaseSource {
+        db_type: config::db::DatabaseType::SurrealDB,
+    };
+
+    // Connect to the database
+    let conn = surreal_db.connect().await?;
+    let gym_services = GymServices { repo: conn };
+
+    let routes_all = Router::new().merge(gym_routes(gym_services));
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, routes_all).await.unwrap();
+
+    Ok(())
 }
 
-fn routes() -> Router {
-    Router::new().route("/ping", get(ping))
-}
-
-// basic handler that responds with a static string
-async fn ping() -> &'static str {
-    "pong!"
+pub fn gym_routes(gym_services: GymServices) -> Router {
+    Router::new()
+        .route("/api/v1/gym", post(register_gym_user))
+        .with_state(gym_services)
 }

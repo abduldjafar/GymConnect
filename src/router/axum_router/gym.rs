@@ -1,23 +1,29 @@
-use crate::errors::Result;
-use crate::repo::model::{PayloadUser, User};
-use crate::router::interface::GymRouter;
-use crate::services::gym::GymServices;
-use axum::Json;
-use serde_json::Value;
+use axum::{
+    extract::State,
+    response::IntoResponse,
+    Json,
+};
 
-impl GymRouter {
-    async fn register_gym_user(&self, payload: Json<PayloadUser>) -> Result<Json<Value>> {
-        let gym_services = &self.gym_services;
+use crate::{
+    errors::Result,
+    repo::model::{PayloadUser, User},
+    services::gym::GymServices,
+};
 
-        let user = User {
-            username: todo!(),
-            user_type: todo!(),
-            email: todo!(),
-            created_at: todo!(),
-            updated_at: todo!(),
-            password: todo!(),
-        };
+pub async fn register_gym_user(
+    State(svc): State<GymServices>,
+    payload: Json<PayloadUser>,
+) -> Result<impl IntoResponse> {
+    let user = User {
+        username: payload.username.clone(),
+        user_type: payload.user_type.clone(),
+        email: payload.email.clone(),
+        created_at: None,
+        updated_at: None,
+        password: payload.password.clone(),
+    };
 
-        let user_id = gym_services.register_profile(&user).await?;
-    }
+    let user_id = svc.register_profile(&user).await?.unwrap();
+
+    Ok(Json(user_id))
 }

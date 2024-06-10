@@ -1,7 +1,6 @@
 use crate::{environment::Environment, errors::Result};
 use axum::async_trait;
 use serde::Deserialize;
-use std::error::Error;
 use surrealdb::{
     engine::remote::ws::{Client, Ws},
     opt::auth::Root,
@@ -15,12 +14,15 @@ pub enum DatabaseType {
     // Add other database types here, e.g., Postgres
 }
 
+#[derive(Clone)]
 pub enum DatabaseClient {
     Surreal(SurrealDb),
     // Add other database clients here, e.g., Postgres(PostgresDb)
 }
 
 /* Define the SurrealDb struct */
+
+#[derive(Clone)]
 pub struct SurrealDb {
     pub client: Option<Surreal<Client>>,
 }

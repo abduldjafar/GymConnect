@@ -25,11 +25,11 @@ pub struct Gym {
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Id {
-    pub id: Thing, // Username of the user           // Password of the user
+    pub id: Thing,
 }
 
 /* Struct representing a User in the database */
-#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Deserialize)]
 pub struct PayloadUser {
     pub username: String,  // Username of the user
     pub user_type: String, // Type of the user (e.g., admin, regular user)

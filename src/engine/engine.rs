@@ -9,7 +9,6 @@ pub enum EngineType {
     // Add other engine types here, e.g., webtix
 }
 
-pub struct Axum {}
 #[async_trait]
 pub trait Cmd {
     async fn run(&self) -> Result<()>;
@@ -20,7 +19,7 @@ impl Cmd for EngineType {
     async fn run(&self) -> Result<()> {
         match &self {
             EngineType::Axum => {
-                axum_engine::run().await;
+                axum_engine::run().await?;
                 Ok(())
             }
         }

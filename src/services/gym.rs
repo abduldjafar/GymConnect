@@ -1,13 +1,13 @@
 use crate::{
     config::db::DatabaseClient,
-    errors::{self, Result},
+    errors::Result,
     repo::{
         interface::DBInterface,
         model::{Gym, Id, User},
     },
 };
-use std::error::Error;
 
+#[derive(Clone)]
 pub struct GymServices {
     pub repo: DatabaseClient,
 }
