@@ -1,1 +1,1 @@
-# koteka-gym
+# lets-gym
