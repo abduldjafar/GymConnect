@@ -2,11 +2,11 @@ use axum::{extract::State, response::IntoResponse, Json};
 
 use crate::{
     errors::Result,
-    repo::model::{PayloadUser, User},
+    repo::model::{PayloadIdResponses, PayloadUser, User},
     services::gym::GymServices,
 };
 
-pub async fn register_gym_user(
+pub async fn register(
     State(svc): State<GymServices>,
     payload: Json<PayloadUser>,
 ) -> Result<impl IntoResponse> {
@@ -21,5 +21,9 @@ pub async fn register_gym_user(
 
     let user_id = svc.register_profile(&user).await?.unwrap();
 
-    Ok(Json(user_id))
+    let payload_id_responses = PayloadIdResponses {
+        id: format!("{}:{}", user_id.id.tb, user_id.id.id.to_string()),
+    };
+
+    Ok(Json(payload_id_responses))
 }

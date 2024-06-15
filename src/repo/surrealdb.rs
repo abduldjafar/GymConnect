@@ -3,14 +3,6 @@ use crate::{config::db::SurrealDb, errors::Result};
 use axum::async_trait;
 use interface::DBInterface;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use surrealdb::sql::Thing;
-
-/* Struct for deserialization of records */
-#[derive(Debug, Deserialize)]
-pub struct Record {
-    #[allow(dead_code)]
-    id: Thing,
-}
 
 /* Implementation of DBInterface for SurrealDb */
 #[async_trait]

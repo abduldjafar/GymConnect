@@ -6,7 +6,6 @@ use crate::{
     repo::{
         interface::DBInterface,
         model::{Id, User},
-        surrealdb::Record,
     },
 };
 

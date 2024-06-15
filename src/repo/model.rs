@@ -36,3 +36,15 @@ pub struct PayloadUser {
     pub email: String,     // Email of the user
     pub password: String,  // Password of the user
 }
+
+/* Struct for deserialization of records */
+#[derive(Debug, Deserialize)]
+pub struct Record {
+    #[allow(dead_code)]
+    id: Thing,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PayloadIdResponses {
+    pub id: String,
+}

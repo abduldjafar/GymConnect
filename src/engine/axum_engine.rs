@@ -3,7 +3,7 @@ use axum::{routing::post, Router};
 use crate::{
     config::{self, db::Sources},
     errors::Result,
-    router::axum_router::gym::register_gym_user,
+    router::axum_router::gym,
     services::gym::GymServices,
 };
 
@@ -25,6 +25,6 @@ pub async fn run() -> Result<()> {
 
 pub fn gym_routes(gym_services: GymServices) -> Router {
     Router::new()
-        .route("/api/v1/gym", post(register_gym_user))
+        .route("/api/v1/gym", post(gym::register))
         .with_state(gym_services)
 }

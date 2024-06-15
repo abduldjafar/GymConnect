@@ -1,4 +1,4 @@
-use axum::{http::StatusCode, response::{IntoResponse}};
+use axum::{body::Body, http::{Response, StatusCode}, response::IntoResponse};
 use serde::Serialize;
 
 pub type Result<T> = core::result::Result<T,Error>;
@@ -31,7 +31,18 @@ impl From<surrealdb::Error> for Error {
 
 impl IntoResponse for Error {
     fn into_response(self) -> axum::response::Response {
-        // Implement conversion to response
-        StatusCode::INTERNAL_SERVER_ERROR.into_response()
+        match &self {
+            Error::LoginFail => {
+                let response = Response::new(Body::new("login failed".to_string()));
+                response
+            },
+            Error::DatabaseError(error) => {
+				let response = Response::new(Body::new("There was a problem with the database".to_string()));
+                println!("{}",error);
+
+                response
+                
+			},
+        }
     }
 }
