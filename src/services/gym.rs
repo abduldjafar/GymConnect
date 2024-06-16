@@ -70,14 +70,14 @@ impl GymServices {
 
         let data: Vec<PayloadGymResponses> = temp_data
             .into_iter()
-            .map(|x| PayloadGymResponses {
-                id: x.id.unwrap().to_string(),
-                address: x.address,
-                owner_name: x.owner_name,
-                phone: x.phone,
-                created_at: x.created_at,
-                updated_at: x.updated_at,
-                user_id: x.user_id.unwrap().to_string(),
+            .map(|gym| PayloadGymResponses {
+                id: gym.id.unwrap().to_string(),
+                address: gym.address,
+                owner_name: gym.owner_name,
+                phone: gym.phone,
+                created_at: gym.created_at,
+                updated_at: gym.updated_at,
+                user_id: gym.user_id.unwrap().to_string(),
             })
             .collect();
 
