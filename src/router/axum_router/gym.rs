@@ -1,4 +1,8 @@
-use axum::{extract::State, response::IntoResponse, Json};
+use axum::{
+    extract::{Path, State},
+    response::IntoResponse,
+    Json,
+};
 
 use crate::{
     errors::Result,
@@ -26,4 +30,13 @@ pub async fn register(
     };
 
     Ok(Json(payload_id_responses))
+}
+
+pub async fn get_profile(
+    State(svc): State<GymServices>,
+    Path(id): Path<String>,
+) -> Result<impl IntoResponse> {
+    let data = svc.profile_details(id).await?;
+
+    Ok(Json(data))
 }

@@ -6,7 +6,8 @@ pub type Result<T> = core::result::Result<T,Error>;
 #[derive(Clone, Debug, Serialize)]
 pub enum Error {
     LoginFail,
-    DatabaseError(String)
+    DatabaseError(String),
+    DataExist(String),
 }
 
 impl core::fmt::Display for Error {
@@ -39,6 +40,13 @@ impl IntoResponse for Error {
             Error::DatabaseError(error) => {
 				let response = Response::new(Body::new("There was a problem with the database".to_string()));
                 println!("{}",error);
+
+                response
+                
+			},
+            Error::DataExist(id) => {
+				let response = Response::new(Body::new(format!("Data with {} already registered",id)));
+                println!("{} already registered",id);
 
                 response
                 

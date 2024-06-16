@@ -15,6 +15,7 @@ pub struct User {
 /* Struct representing a Gym User in the database */
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Gym {
+    pub id: Option<Thing>,
     pub user_id: Option<Thing>,
     pub address: String,
     pub owner_name: String,
@@ -47,4 +48,15 @@ pub struct Record {
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PayloadIdResponses {
     pub id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PayloadGymResponses {
+    pub id: String,
+    pub address: String,
+    pub owner_name: String,
+    pub phone: i32,
+    pub created_at: Option<Datetime>, // Timestamp when the user was created
+    pub updated_at: Option<Datetime>, // Timestamp when the user was last updated
+    pub user_id: String,
 }
