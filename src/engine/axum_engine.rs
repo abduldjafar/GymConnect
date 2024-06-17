@@ -29,6 +29,9 @@ pub async fn run() -> Result<()> {
 pub fn gym_routes(gym_services: GymServices) -> Router {
     Router::new()
         .route("/api/v1/gym", post(gym::register))
-        .route("/api/v1/gym/:id", get(gym::get_profile))
+        .route(
+            "/api/v1/gym/:id",
+            get(gym::get_profile).put(gym::update_profile),
+        )
         .with_state(gym_services)
 }

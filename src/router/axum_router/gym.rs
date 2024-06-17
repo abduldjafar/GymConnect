@@ -3,10 +3,11 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use serde_json::json;
 
 use crate::{
     errors::Result,
-    repo::model::{PayloadIdResponses, PayloadUser, User},
+    repo::model::{PayloadGymRequest, PayloadIdResponses, PayloadUser, User},
     services::gym::GymServices,
 };
 
@@ -39,4 +40,16 @@ pub async fn get_profile(
     let data = svc.profile_details(id).await?;
 
     Ok(Json(data))
+}
+
+pub async fn update_profile(
+    State(svc): State<GymServices>,
+    Path(id): Path<String>,
+    payload: Json<PayloadGymRequest>,
+) -> Result<impl IntoResponse> {
+    svc.update_profile(&payload, id).await?;
+
+    Ok(Json(json!({
+        "status":"success",
+    })))
 }

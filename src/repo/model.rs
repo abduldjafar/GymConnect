@@ -19,7 +19,7 @@ pub struct Gym {
     pub user_id: Option<Thing>,
     pub address: String,
     pub owner_name: String,
-    pub phone: i32,
+    pub phone: String,
     pub created_at: Option<Datetime>, // Timestamp when the user was created
     pub updated_at: Option<Datetime>, // Timestamp when the user was last updated
 }
@@ -55,8 +55,18 @@ pub struct PayloadGymResponses {
     pub id: String,
     pub address: String,
     pub owner_name: String,
-    pub phone: i32,
+    pub phone: String,
     pub created_at: Option<Datetime>, // Timestamp when the user was created
     pub updated_at: Option<Datetime>, // Timestamp when the user was last updated
     pub user_id: String,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PayloadGymRequest {
+    pub address: Option<String>,
+    pub owner_name: Option<String>,
+    pub phone: Option<String>,
+    pub created_at: Option<Datetime>,
+    pub updated_at: Option<Datetime>,
+    pub user_id: Option<Thing>,
 }
