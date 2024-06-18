@@ -1,13 +1,12 @@
-use axum::{
-    routing::{get, post},
-    Router,
-};
-
 use crate::{
     config::{self, db::Sources},
     errors::Result,
     router::axum_router::gym,
     services::gym::GymServices,
+};
+use axum::{
+    routing::{get, post},
+    Router,
 };
 
 pub async fn run() -> Result<()> {

@@ -34,19 +34,23 @@ impl IntoResponse for Error {
     fn into_response(self) -> axum::response::Response {
         match &self {
             Error::LoginFail => {
-                let response = Response::new(Body::new("login failed".to_string()));
+                let mut response = Response::new(Body::new("login failed".to_string()));
+                *response.status_mut() = StatusCode::INTERNAL_SERVER_ERROR.into();
                 response
             },
             Error::DatabaseError(error) => {
-				let response = Response::new(Body::new("There was a problem with the database".to_string()));
+				let mut response = Response::new(Body::new("There was a problem with the database".to_string()));
                 println!("{}",error);
+                *response.status_mut() = StatusCode::INTERNAL_SERVER_ERROR.into();
 
                 response
                 
 			},
             Error::DataExist(id) => {
-				let response = Response::new(Body::new(format!("Data with {} already registered",id)));
+				let mut response = Response::new(Body::new(format!("Data with {} already registered",id)));
                 println!("{} already registered",id);
+
+                *response.status_mut() = StatusCode::NOT_ACCEPTABLE.into();
 
                 response
                 

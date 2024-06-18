@@ -1,7 +1,3 @@
-use core::time;
-
-use surrealdb::sql::Datetime;
-
 use crate::{
     config::db::DatabaseClient,
     errors::{self, Result},
@@ -9,7 +5,6 @@ use crate::{
         interface::DBInterface,
         model::{Gym, Id, PayloadGymRequest, PayloadGymResponses, User},
     },
-    router::axum_router::gym,
 };
 use chrono::prelude::*;
 
