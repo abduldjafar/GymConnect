@@ -42,9 +42,9 @@ impl GymServices {
 
         let gym_id = insert_into_user_tb.unwrap();
 
-        let data_exists = self.is_gym_user_empty(repo, gym_id.id.to_string()).await?;
+        let (not_exists, _) = self.is_gym_user_empty(repo, gym_id.id.to_string()).await?;
 
-        if !data_exists.0 {
+        if !not_exists {
             return Err(errors::Error::DataExist(format!("email:{}", data.email)));
         }
 
@@ -64,21 +64,18 @@ impl GymServices {
         Ok(insert_into_gym_tb)
     }
 
-    pub async fn profile_details(
-        &self,
-        gym_id: String,
-    ) -> Result<Option<Vec<PayloadGymResponses>>> {
+    pub async fn profile_details(&self, user_id: String) -> Result<PayloadGymResponses> {
         let repo = &self.repo;
 
         let temp_data: Vec<Gym> = repo
             .select_where(
                 "gym".to_owned(),
-                format!("user_id = '{}'", gym_id.to_string()),
+                format!("user_id = '{}'", user_id.to_string()),
                 "*".to_string(),
             )
             .await?;
 
-        let data: Vec<PayloadGymResponses> = temp_data
+        let data_array: Vec<PayloadGymResponses> = temp_data
             .into_iter()
             .map(|gym| PayloadGymResponses {
                 id: gym.id.unwrap().to_string(),
@@ -91,19 +88,23 @@ impl GymServices {
             })
             .collect();
 
-        Ok(Some(data))
+        let data = match data_array.get(0).take() {
+            Some(data) => data.to_owned(),
+            None => {
+                return Err(errors::Error::DataNotAvaliable(format!("{}", user_id)));
+            }
+        };
+
+        Ok(data)
     }
 
     pub async fn update_profile(&self, payload: &PayloadGymRequest, user_id: String) -> Result<()> {
         let repo = &self.repo;
 
-        let (exists, existing_data) = self.is_gym_user_empty(repo, user_id.clone()).await?;
+        let (not_exists, existing_data) = self.is_gym_user_empty(repo, user_id.clone()).await?;
 
-        if exists {
-            return Err(errors::Error::DataExist(format!(
-                "User with id: {} does not exist",
-                user_id
-            )));
+        if not_exists {
+            return Err(errors::Error::DataNotAvaliable(format!("{}", user_id)));
         }
 
         let existing_record = &existing_data[0];
@@ -122,14 +123,21 @@ impl GymServices {
                 .phone
                 .clone()
                 .or_else(|| Some(existing_record.phone.clone())),
-            created_at: existing_record.clone().created_at,
+            created_at: existing_record
+                .created_at
+                .clone()
+                .or_else(|| Some(time_now.clone())),
             updated_at: Some(time_now),
             user_id: existing_record.user_id.clone(),
         };
 
         let gym_id = existing_record.clone().id.unwrap().to_string();
 
-        repo.update_record(gym_id, "gym".to_string(), &data).await?;
+        let update_data = repo.update_record(gym_id, "gym".to_string(), &data).await?;
+
+        if !update_data {
+            return Err(errors::Error::DatabaseError(format!("{}", user_id)));
+        }
 
         Ok(())
     }

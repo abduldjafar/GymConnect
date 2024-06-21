@@ -8,6 +8,7 @@ pub enum Error {
     LoginFail,
     DatabaseError(String),
     DataExist(String),
+    DataNotAvaliable(String),
 }
 
 impl core::fmt::Display for Error {
@@ -40,7 +41,6 @@ impl IntoResponse for Error {
             },
             Error::DatabaseError(error) => {
 				let mut response = Response::new(Body::new("There was a problem with the database".to_string()));
-                println!("{}",error);
                 *response.status_mut() = StatusCode::INTERNAL_SERVER_ERROR.into();
 
                 response
@@ -48,9 +48,14 @@ impl IntoResponse for Error {
 			},
             Error::DataExist(id) => {
 				let mut response = Response::new(Body::new(format!("Data with {} already registered",id)));
-                println!("{} already registered",id);
-
                 *response.status_mut() = StatusCode::NOT_ACCEPTABLE.into();
+
+                response
+                
+			},
+            Error::DataNotAvaliable(id) => {
+				let mut response = Response::new(Body::new(format!("Data with {} Not Avaliable",id)));
+                *response.status_mut() = StatusCode::NOT_FOUND.into();
 
                 response
                 
