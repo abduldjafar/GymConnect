@@ -1,5 +1,9 @@
+use std::string::FromUtf8Error;
+
 use axum::{body::Body, http::{Response, StatusCode}, response::IntoResponse};
+use redis::RedisError;
 use serde::Serialize;
+use surrealdb::error;
 
 pub type Result<T> = core::result::Result<T,Error>;
 
@@ -9,6 +13,9 @@ pub enum Error {
     DatabaseError(String),
     DataExist(String),
     DataNotAvaliable(String),
+    TokenError(String),
+    DecodeError(String),
+    StringError(String),
 }
 
 impl core::fmt::Display for Error {
@@ -31,6 +38,37 @@ impl From<surrealdb::Error> for Error {
     }
 }
 
+impl From<jsonwebtoken::errors::Error> for Error {
+    fn from(error: jsonwebtoken::errors::Error) -> Self {
+        Error::TokenError(error.to_string())
+    }
+}
+
+impl  From<base64::DecodeError> for Error {
+    fn from(error: base64::DecodeError) -> Self {
+        Error::DecodeError(error.to_string())
+    }
+}
+
+impl From<FromUtf8Error> for Error {
+    fn from(error: FromUtf8Error) -> Self {
+        Error::StringError(error.to_string())
+    }
+}
+
+impl From<RedisError> for Error {
+    fn from(error: RedisError) -> Self {
+        Error::StringError(error.to_string())
+    }
+}
+
+
+impl From<uuid::Error> for Error {
+    fn from(error: uuid::Error) -> Self {
+        Error::StringError(error.to_string())
+    }
+}
+
 impl IntoResponse for Error {
     fn into_response(self) -> axum::response::Response {
         match &self {
@@ -39,7 +77,7 @@ impl IntoResponse for Error {
                 *response.status_mut() = StatusCode::INTERNAL_SERVER_ERROR.into();
                 response
             },
-            Error::DatabaseError(error) => {
+            Error::DatabaseError(_) => {
 				let mut response = Response::new(Body::new("There was a problem with the database".to_string()));
                 *response.status_mut() = StatusCode::INTERNAL_SERVER_ERROR.into();
 
@@ -60,6 +98,24 @@ impl IntoResponse for Error {
                 response
                 
 			},
+            Error::TokenError(message) =>{
+                let mut response = Response::new(Body::new(format!("{}",message)));
+                *response.status_mut() = StatusCode::UNAUTHORIZED.into();
+
+                response
+            },
+            Error::DecodeError(message)=>{
+                let mut response = Response::new(Body::new(format!("{}",message)));
+                *response.status_mut() = StatusCode::FORBIDDEN.into();
+
+                response
+            },
+            Error::StringError(message)=>{
+                let mut response = Response::new(Body::new(format!("{}",message)));
+                *response.status_mut() = StatusCode::FORBIDDEN.into();
+
+                response
+            },
         }
     }
 }

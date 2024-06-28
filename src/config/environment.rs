@@ -1,6 +1,6 @@
 use std::env;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Environment {
     pub db_host: String,
     pub db_port: String,
@@ -10,6 +10,10 @@ pub struct Environment {
     pub db_namespace: String,
     pub host_ip: String,
     pub host_port: String,
+    pub refresh_token_private_key: String,
+    pub refresh_token_public_key: String,
+    pub access_token_private_key: String,
+    pub access_token_public_key: String,
 }
 
 impl Environment {
@@ -22,6 +26,14 @@ impl Environment {
         let db_namespace = env::var("DB_NAMESPACE").unwrap_or(String::from("none"));
         let host_ip = env::var("HOST_IP").unwrap_or(String::from("none"));
         let host_port = env::var("HOST_PORT").unwrap_or(String::from("none"));
+        let refresh_token_private_key =
+            env::var("REFRESH_TOKEN_PRIVATE_KEY").unwrap_or(String::from("none"));
+        let refresh_token_public_key =
+            env::var("REFRESH_TOKEN_PUBLIC_KEY").unwrap_or(String::from("none"));
+        let access_token_private_key =
+            env::var("ACCESS_TOKEN_PRIVATE_KEY").unwrap_or(String::from("none"));
+        let access_token_public_key =
+            env::var("ACCESS_TOKEN_PUBLIC_KEY").unwrap_or(String::from("none"));
 
         Environment {
             db_host,
@@ -32,6 +44,10 @@ impl Environment {
             db_namespace,
             host_ip,
             host_port,
+            refresh_token_private_key,
+            refresh_token_public_key,
+            access_token_private_key,
+            access_token_public_key,
         }
     }
 }

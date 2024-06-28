@@ -8,7 +8,6 @@ use crate::{
 };
 use chrono::prelude::*;
 
-
 #[derive(Clone)]
 pub struct GymnastServices {
     pub repo: DatabaseClient,

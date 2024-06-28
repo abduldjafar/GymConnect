@@ -71,7 +71,6 @@ pub struct PayloadGymRequest {
     pub user_id: Option<Thing>,
 }
 
-
 /* Struct representing a Gym User in the database */
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Gymnast {
@@ -79,8 +78,8 @@ pub struct Gymnast {
     pub user_id: Option<Thing>,
     pub address: String,
     pub sex: String,
-    pub birth:Datetime,
+    pub birth: Datetime,
     pub phone: String,
-    pub created_at: Option<Datetime>, 
+    pub created_at: Option<Datetime>,
     pub updated_at: Option<Datetime>,
 }
