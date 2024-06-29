@@ -57,7 +57,7 @@ pub async fn get_profile(
     // Get profile details
     let svc = app_state.gym_services;
     let data = svc.profile_details(id).await?;
-    
+
     if jwt.user_id != data.id {
         return Err(errors::Error::UserUnauthorized(String::from(
             "user unauthorized to get profile",

@@ -1,7 +1,12 @@
 use std::string::FromUtf8Error;
-use axum::{body::Body, http::{Response, StatusCode}, response::IntoResponse};
+use axum::{
+    body::Body,
+    http::{Response, StatusCode},
+    response::IntoResponse,
+};
 use redis::RedisError;
 use serde::Serialize;
+use serde_json::json;
 
 pub type Result<T> = core::result::Result<T, Error>;
 
@@ -68,48 +73,25 @@ impl From<argon2::password_hash::Error> for Error {
 }
 
 impl IntoResponse for Error {
-    fn into_response(self) -> axum::response::Response {
-        match &self {
-            Error::LoginFail => {
-                let mut response = Response::new(Body::new("Login failed".to_string()));
-                *response.status_mut() = StatusCode::INTERNAL_SERVER_ERROR;
-                response
-            },
-            Error::DatabaseError(error) => {
-                let mut response = Response::new(Body::new(format!("There was a problem with the database: {}", error)));
-                *response.status_mut() = StatusCode::INTERNAL_SERVER_ERROR;
-                response
-            },
-            Error::DataExist(id) => {
-                let mut response = Response::new(Body::new(format!("{} already registered", id)));
-                *response.status_mut() = StatusCode::NOT_ACCEPTABLE;
-                response
-            },
-            Error::DataNotAvaliable(id) => {
-                let mut response = Response::new(Body::new(format!("{} Not Available", id)));
-                *response.status_mut() = StatusCode::NOT_FOUND;
-                response
-            },
-            Error::TokenError(message) => {
-                let mut response = Response::new(Body::new(format!("{}", message)));
-                *response.status_mut() = StatusCode::UNAUTHORIZED;
-                response
-            },
-            Error::DecodeError(message) => {
-                let mut response = Response::new(Body::new(format!("{}", message)));
-                *response.status_mut() = StatusCode::FORBIDDEN;
-                response
-            },
-            Error::StringError(message) => {
-                let mut response = Response::new(Body::new(format!("{}", message)));
-                *response.status_mut() = StatusCode::FORBIDDEN;
-                response
-            },
-            Error::UserUnauthorized(message) => {
-                let mut response = Response::new(Body::new(format!("{}", message)));
-                *response.status_mut() = StatusCode::UNAUTHORIZED;
-                response
-            }
-        }
+    fn into_response(self) -> Response<Body> {
+        let (status, error_message) = match &self {
+            Error::LoginFail => (StatusCode::UNAUTHORIZED, "Login failed".to_string()),
+            Error::DatabaseError(error) => (StatusCode::INTERNAL_SERVER_ERROR, format!("There was a problem with the database: {}", error)),
+            Error::DataExist(id) => (StatusCode::NOT_ACCEPTABLE, format!("{} already registered", id)),
+            Error::DataNotAvaliable(id) => (StatusCode::NOT_FOUND, format!("{} Not Available", id)),
+            Error::TokenError(message) => (StatusCode::UNAUTHORIZED, message.to_string()),
+            Error::DecodeError(message) => (StatusCode::FORBIDDEN, message.to_string()),
+            Error::StringError(message) => (StatusCode::FORBIDDEN, message.to_string()),
+            Error::UserUnauthorized(message) => (StatusCode::UNAUTHORIZED, message.to_string()),
+        };
+
+        let body = Body::from(json!({
+            "status": "failed",
+            "error": error_message
+        }).to_string());
+
+        let mut response = Response::new(body);
+        *response.status_mut() = status;
+        response
     }
 }
