@@ -1,11 +1,11 @@
-use koteka_gym::{config::{self, db::Sources}, engine::engine::{self, Cmd, EngineType}, errors::Result, repo::{interface::DBInterface, model::{Id, User}}};
-
-
+use koteka_gym::{
+    engine::engine::{ Cmd, EngineType},
+    errors::Result,
+};
 
 #[tokio::main]
-async fn main() -> Result<()>{
+async fn main() -> Result<()> {
     let engine = EngineType::Axum;
     engine.run().await?;
     Ok(())
 }
-

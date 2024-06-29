@@ -1,12 +1,11 @@
 use crate::{
     config::db::DatabaseClient,
-    errors::{self, Result},
+    errors::Result,
     repo::{
         interface::DBInterface,
-        model::{Gymnast, Id, PayloadGymRequest, PayloadGymResponses, User},
+        model::Gymnast,
     },
 };
-use chrono::prelude::*;
 
 #[derive(Clone)]
 pub struct GymnastServices {
