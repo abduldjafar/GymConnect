@@ -71,6 +71,15 @@ pub struct PayloadGymRequest {
     pub user_id: Option<Thing>,
 }
 
+#[derive(Clone, Debug, PartialEq, Deserialize)]
+pub struct PayloadUserResponse {
+    pub id: Thing,
+    pub username: String,  // Username of the user
+    pub user_type: String, // Type of the user (e.g., admin, regular user)
+    pub email: String,     // Email of the user
+    pub password: String,  // Password of the user
+}
+
 /* Struct representing a Gym User in the database */
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Gymnast {
@@ -82,4 +91,10 @@ pub struct Gymnast {
     pub phone: String,
     pub created_at: Option<Datetime>,
     pub updated_at: Option<Datetime>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct LoginUserSchema {
+    pub email: String,
+    pub password: String,
 }

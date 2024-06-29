@@ -1,8 +1,12 @@
 use base64::{engine::general_purpose, Engine};
+use redis::AsyncCommands;
 use uuid::Uuid;
 
 use super::token::{TokenClaims, TokenDetails};
-use crate::errors::Result;
+use crate::{
+    engine::axum_engine::AppState,
+    errors::{self, Result},
+};
 
 pub async fn generate_jwt_token(
     user_id: String,
@@ -62,4 +66,29 @@ pub async fn verify_jwt_token(public_key: String, token: &str) -> Result<TokenDe
         user_id,
         expires_in: None,
     })
+}
+
+pub async fn save_token_data_to_redis(
+    data: &AppState,
+    token_details: &TokenDetails,
+    max_age: i64,
+) -> Result<()> {
+    let mut redis_client = match data.redis_client.get_async_connection().await {
+        Ok(client) => client,
+        Err(_) => {
+            return Err(errors::Error::DatabaseError(format!(
+                "internal  server error"
+            )))
+        }
+    };
+
+    redis_client
+        .set_ex(
+            token_details.token_uuid.to_string(),
+            token_details.user_id.to_string(),
+            (max_age * 60) as u64,
+        )
+        .await?;
+
+    Ok(())
 }

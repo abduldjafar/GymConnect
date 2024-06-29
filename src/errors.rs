@@ -58,7 +58,7 @@ impl From<FromUtf8Error> for Error {
 
 impl From<RedisError> for Error {
     fn from(error: RedisError) -> Self {
-        Error::StringError(error.to_string())
+        Error::DatabaseError(error.to_string())
     }
 }
 
@@ -66,6 +66,12 @@ impl From<RedisError> for Error {
 impl From<uuid::Error> for Error {
     fn from(error: uuid::Error) -> Self {
         Error::StringError(error.to_string())
+    }
+}
+
+impl From<argon2::password_hash::Error> for Error {
+    fn from(error: argon2::password_hash::Error) -> Self {
+        Error::DatabaseError(error.to_string())
     }
 }
 

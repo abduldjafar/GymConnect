@@ -14,11 +14,9 @@ pub struct GymServices {
 }
 
 impl GymServices {
-    async fn is_gym_user_empty(
-        &self,
-        repo: &DatabaseClient,
-        gym_id: String,
-    ) -> Result<(bool, Vec<Gym>)> {
+    async fn is_gym_user_empty(&self, gym_id: String) -> Result<(bool, Vec<Gym>)> {
+        let repo = self.repo.clone();
+
         let data_exists = {
             let data: Vec<Gym> = repo
                 .select_where(
@@ -40,9 +38,9 @@ impl GymServices {
         let insert_into_user_tb: Option<Id> =
             repo.insert_record(String::from("user"), data).await?;
 
-        let gym_id = insert_into_user_tb.unwrap();
+        let user_id = insert_into_user_tb.unwrap();
 
-        let (not_exists, _) = self.is_gym_user_empty(repo, gym_id.id.to_string()).await?;
+        let (not_exists, _) = self.is_gym_user_empty(user_id.id.to_string()).await?;
 
         if !not_exists {
             return Err(errors::Error::DataExist(format!("email:{}", data.email)));
@@ -50,7 +48,7 @@ impl GymServices {
 
         let gym_data = Gym {
             id: None,
-            user_id: std::option::Option::Some(gym_id.id),
+            user_id: std::option::Option::Some(user_id.id),
             created_at: None,
             updated_at: None,
             address: String::from(""),
@@ -101,7 +99,7 @@ impl GymServices {
     pub async fn update_profile(&self, payload: &PayloadGymRequest, user_id: String) -> Result<()> {
         let repo = &self.repo;
 
-        let (not_exists, existing_data) = self.is_gym_user_empty(repo, user_id.clone()).await?;
+        let (not_exists, existing_data) = self.is_gym_user_empty(user_id.clone()).await?;
 
         if not_exists {
             return Err(errors::Error::DataNotAvaliable(format!("{}", user_id)));

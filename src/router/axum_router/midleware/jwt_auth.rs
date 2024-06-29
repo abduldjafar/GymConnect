@@ -24,34 +24,9 @@ pub struct JWTAuthMiddleware {
     pub access_token_uuid: uuid::Uuid,
 }
 
-async fn save_token_data_to_redis(
-    State(data): State<Arc<AppState>>,
-    token_details: &TokenDetails,
-    max_age: i64,
-) -> Result<()> {
-    let mut redis_client = match data.redis_client.get_async_connection().await {
-        Ok(client) => client,
-        Err(_) => {
-            return Err(errors::Error::DatabaseError(format!(
-                "internal  server error"
-            )))
-        }
-    };
-
-    redis_client
-        .set_ex(
-            token_details.token_uuid.to_string(),
-            token_details.user_id.to_string(),
-            (max_age * 60) as u64,
-        )
-        .await?;
-
-    Ok(())
-}
-
 pub async fn auth(
     cookie_jar: CookieJar,
-    State(data): State<Arc<AppState>>,
+    State(data): State<AppState>,
     mut req: Request<Body>,
     next: Next,
 ) -> Result<impl IntoResponse> {
