@@ -1,5 +1,4 @@
 use crate::{
-    authorization::jwt::{generate_jwt_token, save_token_data_to_redis},
     engine::axum_engine::AppState,
     errors::Result,
     repo::model::{PayloadGymRequest, PayloadIdResponses, PayloadUser, User},
@@ -17,13 +16,13 @@ pub async fn register(
     State(app_state): State<AppState>,
     payload: Json<PayloadUser>,
 ) -> Result<impl IntoResponse> {
-    let cloned_app_state = app_state.clone();
-
+    // Generate salt and hash the password
     let salt = SaltString::generate(&mut OsRng);
     let hashed_password = Argon2::default()
         .hash_password(payload.password.as_bytes(), &salt)?
         .to_string();
 
+    // Create user with hashed password
     let user = User {
         username: payload.username.clone(),
         user_type: payload.user_type.clone(),
@@ -33,43 +32,26 @@ pub async fn register(
         password: hashed_password,
     };
 
+    // Register user profile
     let svc = app_state.gym_services;
     let user_id = svc.register_profile(&user).await?.unwrap();
 
-    let access_token_details = generate_jwt_token(
-        format!("{}:{}", user_id.id.tb, user_id.id.id.to_string()),
-        60,
-        app_state.environment.access_token_private_key,
-    )
-    .await?;
-
-    let refresh_token_details = generate_jwt_token(
-        format!("{}:{}", user_id.id.tb, user_id.id.id.to_string()),
-        60,
-        app_state.environment.refresh_token_private_key,
-    )
-    .await?;
-
+    // Create response payload
     let payload_id_responses = PayloadIdResponses {
         id: format!("{}:{}", user_id.id.tb, user_id.id.id.to_string()),
     };
 
-    save_token_data_to_redis(&cloned_app_state, &access_token_details, 60).await?;
-    save_token_data_to_redis(&cloned_app_state, &refresh_token_details, 60).await?;
-
     Ok(Json(json!({
-        "status":"success",
-        "token":access_token_details.token,
-        "refresh_token":refresh_token_details.token,
-        "response":payload_id_responses
-    }
-    )))
+        "status": "success",
+        "response": payload_id_responses
+    })))
 }
 
 pub async fn get_profile(
     State(app_state): State<AppState>,
     Path(id): Path<String>,
 ) -> Result<impl IntoResponse> {
+    // Get profile details
     let svc = app_state.gym_services;
     let data = svc.profile_details(id).await?;
 
@@ -81,6 +63,7 @@ pub async fn update_profile(
     Path(id): Path<String>,
     payload: Json<PayloadGymRequest>,
 ) -> Result<impl IntoResponse> {
+    // Update profile
     let svc = app_state.gym_services;
     svc.update_profile(&payload, id).await?;
 

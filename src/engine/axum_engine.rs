@@ -9,7 +9,9 @@ use crate::{
     services::{auth::AuthServices, gym::GymServices, gymnast::GymnastServices},
 };
 use axum::{
-    middleware, routing::{get, post}, Router
+    middleware,
+    routing::{get, post},
+    Router,
 };
 use redis::Client;
 
@@ -57,14 +59,15 @@ pub async fn run() -> Result<()> {
     let app_state = AppState {
         gym_services,
         gymnast_services,
+        auth_services,
         redis_client,
         environment,
-        auth_services,
     };
 
     let routes_all = Router::new()
         .merge(gym_routes(app_state.clone()))
         .merge(auth_routes(app_state));
+    
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, routes_all).await.unwrap();
 
@@ -76,7 +79,9 @@ pub fn gym_routes(app_state: AppState) -> Router {
         .route("/api/v1/gym", post(gym::register))
         .route(
             "/api/v1/gym/:id",
-            get(gym::get_profile).route_layer(middleware::from_fn_with_state(app_state.clone(), auth)).put(gym::update_profile),
+            get(gym::get_profile)
+                .put(gym::update_profile)
+                .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
         )
         .with_state(app_state)
 }

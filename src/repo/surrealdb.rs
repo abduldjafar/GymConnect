@@ -45,7 +45,6 @@ impl DBInterface for SurrealDb {
         let data_id: Vec<&str> = id.split(':').collect();
         let client = self.client.clone().unwrap();
         let updated_result: Option<T> = client.update((tb_name, data_id[1])).content(data).await?;
-
         Ok(updated_result.is_some())
     }
 

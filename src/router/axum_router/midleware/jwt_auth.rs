@@ -1,4 +1,3 @@
-use std::sync::Arc;
 
 use axum::{
     body::Body,
@@ -9,7 +8,7 @@ use axum::{
 };
 
 use crate::{
-    authorization::{self, token::TokenDetails},
+    authorization::{self},
     engine::axum_engine::AppState,
     environment::Environment,
     errors::{self, Result},
@@ -105,11 +104,13 @@ pub async fn auth(
         }
     };
 
+
     // Insert authenticated user details into request extensions
     req.extensions_mut().insert(JWTAuthMiddleware {
         access_token_uuid,
         user_id,
     });
+
 
     // Continue handling the request with the next middleware or handler
     Ok(next.run(req).await)

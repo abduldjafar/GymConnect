@@ -25,7 +25,40 @@ impl GymServices {
                     "*".to_string(),
                 )
                 .await?;
+            (data.is_empty(), data)
+        };
 
+        Ok(data_exists)
+    }
+
+    async fn is_user_empty(&self, data: &User) -> Result<(bool, Vec<User>)> {
+        let repo = self.repo.clone();
+
+        let data_exists = {
+            let data: Vec<User> = repo
+                .select_where(
+                    "user".to_owned(),
+                    format!("email = '{}'", data.email),
+                    "*".to_string(),
+                )
+                .await?;
+            (data.is_empty(), data)
+        };
+
+        Ok(data_exists)
+    }
+
+    async fn is_username_empty(&self, data: &User) -> Result<(bool, Vec<User>)> {
+        let repo = self.repo.clone();
+
+        let data_exists = {
+            let data: Vec<User> = repo
+                .select_where(
+                    "user".to_owned(),
+                    format!("username = '{}'", data.username),
+                    "*".to_string(),
+                )
+                .await?;
             (data.is_empty(), data)
         };
 
@@ -34,6 +67,16 @@ impl GymServices {
 
     pub async fn register_profile(&self, data: &User) -> Result<Option<Id>> {
         let repo = &self.repo;
+
+        let (is_user_empty, _) = self.is_user_empty(data).await?;
+        if !is_user_empty {
+            return Err(errors::Error::DataExist(format!("email:{}", data.email)));
+        }
+
+        let (is_username_empty, _) = self.is_username_empty(data).await?;
+        if !is_username_empty {
+            return Err(errors::Error::DataExist(format!("username:{}", data.username)));
+        }
 
         let insert_into_user_tb: Option<Id> =
             repo.insert_record(String::from("user"), data).await?;

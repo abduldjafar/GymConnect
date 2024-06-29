@@ -14,7 +14,6 @@ pub async fn generate_jwt_token(
     private_key: String,
 ) -> Result<TokenDetails> {
     let bytes_private_key = general_purpose::STANDARD.decode(private_key)?;
-
     let decoded_private_key = String::from_utf8(bytes_private_key)?;
 
     let now = chrono::Utc::now();
@@ -76,9 +75,9 @@ pub async fn save_token_data_to_redis(
     let mut redis_client = match data.redis_client.get_async_connection().await {
         Ok(client) => client,
         Err(_) => {
-            return Err(errors::Error::DatabaseError(format!(
-                "internal  server error"
-            )))
+            return Err(errors::Error::DatabaseError(
+                "internal server error".to_string(),
+            ))
         }
     };
 
