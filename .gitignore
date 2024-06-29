@@ -20,4 +20,4 @@ run.sh
 # Added by cargo
 
 /target
-/tests_backup
+/src/tests_backups
