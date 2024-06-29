@@ -14,14 +14,14 @@ pub struct GymServices {
 }
 
 impl GymServices {
-    async fn is_gym_user_empty(&self, gym_id: String) -> Result<(bool, Vec<Gym>)> {
+    pub async fn is_gym_user_empty(&self, user_id: String) -> Result<(bool, Vec<Gym>)> {
         let repo = self.repo.clone();
 
         let data_exists = {
             let data: Vec<Gym> = repo
                 .select_where(
                     "gym".to_owned(),
-                    format!("user_id = '{}'", gym_id),
+                    format!("user_id = '{}'", user_id),
                     "*".to_string(),
                 )
                 .await?;
@@ -75,7 +75,10 @@ impl GymServices {
 
         let (is_username_empty, _) = self.is_username_empty(data).await?;
         if !is_username_empty {
-            return Err(errors::Error::DataExist(format!("username:{}", data.username)));
+            return Err(errors::Error::DataExist(format!(
+                "username:{}",
+                data.username
+            )));
         }
 
         let insert_into_user_tb: Option<Id> =

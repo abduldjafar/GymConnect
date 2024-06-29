@@ -1,10 +1,7 @@
 use crate::{
     config::db::DatabaseClient,
     errors::Result,
-    repo::{
-        interface::DBInterface,
-        model::Gymnast,
-    },
+    repo::{interface::DBInterface, model::Gymnast},
 };
 
 #[derive(Clone)]

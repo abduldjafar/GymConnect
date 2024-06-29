@@ -14,6 +14,7 @@ pub enum Error {
     TokenError(String),
     DecodeError(String),
     StringError(String),
+    UserUnauthorized(String),
 }
 
 impl core::fmt::Display for Error {
@@ -104,6 +105,11 @@ impl IntoResponse for Error {
                 *response.status_mut() = StatusCode::FORBIDDEN;
                 response
             },
+            Error::UserUnauthorized(message) => {
+                let mut response = Response::new(Body::new(format!("{}", message)));
+                *response.status_mut() = StatusCode::UNAUTHORIZED;
+                response
+            }
         }
     }
 }

@@ -1,10 +1,7 @@
 use crate::{
     config::db::DatabaseClient,
     errors::{self, Result},
-    repo::{
-        interface::DBInterface,
-        model::PayloadUserResponse,
-    },
+    repo::{interface::DBInterface, model::PayloadUserResponse},
 };
 
 #[derive(Clone)]
@@ -23,9 +20,11 @@ impl AuthServices {
                 "*".to_string(),
             )
             .await?;
-        
+
         if vect_data.is_empty() {
-            return Err(errors::Error::DataNotAvaliable(String::from("User not found")));
+            return Err(errors::Error::DataNotAvaliable(String::from(
+                "User not found",
+            )));
         }
 
         let data = vect_data.get(0).unwrap().clone();

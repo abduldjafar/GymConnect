@@ -1,16 +1,18 @@
 use crate::{
     engine::axum_engine::AppState,
-    errors::Result,
+    errors::{self, Result},
     repo::model::{PayloadGymRequest, PayloadIdResponses, PayloadUser, User},
 };
 use argon2::{password_hash::SaltString, Argon2, PasswordHasher};
 use axum::{
     extract::{Path, State},
     response::IntoResponse,
-    Json,
+    Extension, Json,
 };
 use rand_core::OsRng;
 use serde_json::json;
+
+use super::midleware::jwt_auth::JWTAuthMiddleware;
 
 pub async fn register(
     State(app_state): State<AppState>,
@@ -50,10 +52,17 @@ pub async fn register(
 pub async fn get_profile(
     State(app_state): State<AppState>,
     Path(id): Path<String>,
+    Extension(jwt): Extension<JWTAuthMiddleware>,
 ) -> Result<impl IntoResponse> {
     // Get profile details
     let svc = app_state.gym_services;
     let data = svc.profile_details(id).await?;
+    
+    if jwt.user_id != data.id {
+        return Err(errors::Error::UserUnauthorized(String::from(
+            "user unauthorized to get profile",
+        )));
+    }
 
     Ok(Json(data))
 }
@@ -61,10 +70,21 @@ pub async fn get_profile(
 pub async fn update_profile(
     State(app_state): State<AppState>,
     Path(id): Path<String>,
+    Extension(jwt): Extension<JWTAuthMiddleware>,
     payload: Json<PayloadGymRequest>,
 ) -> Result<impl IntoResponse> {
-    // Update profile
     let svc = app_state.gym_services;
+    let (is_empty, data) = svc.is_gym_user_empty(id.clone()).await?;
+
+    if !is_empty {
+        let gym_id = data.get(0).unwrap();
+        if jwt.user_id != gym_id.clone().id.unwrap().to_string() {
+            return Err(errors::Error::UserUnauthorized(String::from(
+                "user unauthorized to update profile",
+            )));
+        }
+    }
+
     svc.update_profile(&payload, id).await?;
 
     Ok(Json(json!({

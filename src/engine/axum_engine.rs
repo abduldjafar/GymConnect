@@ -67,7 +67,7 @@ pub async fn run() -> Result<()> {
     let routes_all = Router::new()
         .merge(gym_routes(app_state.clone()))
         .merge(auth_routes(app_state));
-    
+
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, routes_all).await.unwrap();
 

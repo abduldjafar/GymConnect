@@ -1,4 +1,3 @@
-
 use axum::{
     body::Body,
     extract::State,
@@ -104,13 +103,11 @@ pub async fn auth(
         }
     };
 
-
     // Insert authenticated user details into request extensions
     req.extensions_mut().insert(JWTAuthMiddleware {
         access_token_uuid,
         user_id,
     });
-
 
     // Continue handling the request with the next middleware or handler
     Ok(next.run(req).await)
