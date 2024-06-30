@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use axum::{
     body::Body,
     extract::State,
@@ -24,7 +26,7 @@ pub struct JWTAuthMiddleware {
 
 pub async fn auth(
     cookie_jar: CookieJar,
-    State(data): State<AppState>,
+    State(data): State<Arc<AppState>>,
     mut req: Request<Body>,
     next: Next,
 ) -> Result<impl IntoResponse> {

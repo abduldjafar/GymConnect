@@ -3,15 +3,16 @@ use crate::{
     errors::{self, Result},
     repo::{interface::DBInterface, model::PayloadUserResponse},
 };
+use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct AuthServices {
-    pub repo: DatabaseClient,
+    pub repo: Arc<DatabaseClient>,
 }
 
 impl AuthServices {
     pub async fn login(&self, email: String) -> Result<PayloadUserResponse> {
-        let repo = self.repo.clone();
+        let repo = &self.repo;
 
         let vect_data: Vec<PayloadUserResponse> = repo
             .select_where(

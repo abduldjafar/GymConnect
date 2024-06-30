@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::{
     config::{
         self,
@@ -5,7 +7,7 @@ use crate::{
     },
     environment::Environment,
     errors::Result,
-    router::axum_router::{auth, gym, midleware::jwt_auth::auth},
+    router::axum_router::{auth, gym, gymnast, midleware::jwt_auth::auth},
     services::{auth::AuthServices, gym::GymServices, gymnast::GymnastServices},
 };
 use axum::{
@@ -41,7 +43,7 @@ pub async fn run() -> Result<()> {
     };
 
     // Connect to the database
-    let conn = surreal_db.connect().await?;
+    let conn = Arc::new(surreal_db.connect().await?);
     let ping_db = conn.ping();
 
     if ping_db == String::from("Pong!") {
@@ -64,9 +66,12 @@ pub async fn run() -> Result<()> {
         environment,
     };
 
+    let shared_state = Arc::new(app_state);
+
     let routes_all = Router::new()
-        .merge(gym_routes(app_state.clone()))
-        .merge(auth_routes(app_state));
+        .merge(gym_routes(shared_state.clone()))
+        .merge(auth_routes(shared_state.clone()))
+        .merge(gymnast_routes(shared_state));
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, routes_all).await.unwrap();
@@ -74,7 +79,7 @@ pub async fn run() -> Result<()> {
     Ok(())
 }
 
-pub fn gym_routes(app_state: AppState) -> Router {
+pub fn gym_routes(app_state: Arc<AppState>) -> Router {
     Router::new()
         .route("/api/v1/gym", post(gym::register))
         .route(
@@ -86,8 +91,14 @@ pub fn gym_routes(app_state: AppState) -> Router {
         .with_state(app_state)
 }
 
-pub fn auth_routes(app_state: AppState) -> Router {
+pub fn auth_routes(app_state: Arc<AppState>) -> Router {
     Router::new()
         .route("/api/v1/login", post(auth::login_user))
+        .with_state(app_state)
+}
+
+pub fn gymnast_routes(app_state: Arc<AppState>) -> Router {
+    Router::new()
+        .route("/api/v1/gymnast", post(gymnast::register))
         .with_state(app_state)
 }

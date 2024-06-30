@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use argon2::{Argon2, PasswordHash, PasswordVerifier};
 use axum::http::{header, HeaderMap, Response};
 use axum::{extract::State, response::IntoResponse, Json};
@@ -10,11 +12,11 @@ use crate::{engine::axum_engine::AppState, repo::model::LoginUserSchema};
 use crate::errors::{self, Result};
 
 pub async fn login_user(
-    State(app_state): State<AppState>,
+    State(app_state): State<Arc<AppState>>,
     Json(body): Json<LoginUserSchema>,
 ) -> Result<impl IntoResponse> {
-    let auth_svc = app_state.auth_services.clone();
-    let gym_svc = app_state.gym_services.clone();
+    let auth_svc = &app_state.auth_services;
+    let gym_svc = &app_state.gym_services;
     let env = app_state.environment.clone();
 
     let user = auth_svc.login(body.email).await?;

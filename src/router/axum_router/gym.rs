@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::{
     engine::axum_engine::AppState,
     errors::{self, Result},
@@ -15,7 +17,7 @@ use serde_json::json;
 use super::midleware::jwt_auth::JWTAuthMiddleware;
 
 pub async fn register(
-    State(app_state): State<AppState>,
+    State(app_state): State<Arc<AppState>>,
     payload: Json<PayloadUser>,
 ) -> Result<impl IntoResponse> {
     // Generate salt and hash the password
@@ -27,7 +29,7 @@ pub async fn register(
     // Create user with hashed password
     let user = User {
         username: payload.username.clone(),
-        user_type: payload.user_type.clone(),
+        user_type: String::from("gym"),
         email: payload.email.clone(),
         created_at: None,
         updated_at: None,
@@ -35,7 +37,7 @@ pub async fn register(
     };
 
     // Register user profile
-    let svc = app_state.gym_services;
+    let svc = &app_state.gym_services;
     let user_id = svc.register_profile(&user).await?.unwrap();
 
     // Create response payload
@@ -50,12 +52,12 @@ pub async fn register(
 }
 
 pub async fn get_profile(
-    State(app_state): State<AppState>,
+    State(app_state): State<Arc<AppState>>,
     Path(id): Path<String>,
     Extension(jwt): Extension<JWTAuthMiddleware>,
 ) -> Result<impl IntoResponse> {
     // Get profile details
-    let svc = app_state.gym_services;
+    let svc = &app_state.gym_services;
     let data = svc.profile_details(id).await?;
 
     if jwt.user_id != data.id {
@@ -68,12 +70,12 @@ pub async fn get_profile(
 }
 
 pub async fn update_profile(
-    State(app_state): State<AppState>,
+    State(app_state): State<Arc<AppState>>,
     Path(id): Path<String>,
     Extension(jwt): Extension<JWTAuthMiddleware>,
     payload: Json<PayloadGymRequest>,
 ) -> Result<impl IntoResponse> {
-    let svc = app_state.gym_services;
+    let svc = &app_state.gym_services;
     let (is_empty, data) = svc.is_gym_user_empty(id.clone()).await?;
 
     if !is_empty {

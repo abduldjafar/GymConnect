@@ -3,6 +3,8 @@ use surrealdb::sql::{Datetime, Thing};
 
 /* Struct representing a User in the database */
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[allow(dead_code)]
+
 pub struct User {
     pub username: String,             // Username of the user
     pub user_type: String,            // Type of the user (e.g., admin, regular user)
@@ -32,10 +34,9 @@ pub struct Id {
 /* Struct representing a User in the database */
 #[derive(Clone, Debug, PartialEq, Deserialize)]
 pub struct PayloadUser {
-    pub username: String,  // Username of the user
-    pub user_type: String, // Type of the user (e.g., admin, regular user)
-    pub email: String,     // Email of the user
-    pub password: String,  // Password of the user
+    pub username: String, // Username of the user
+    pub email: String,    // Email of the user
+    pub password: String, // Password of the user
 }
 
 /* Struct for deserialization of records */
@@ -87,7 +88,7 @@ pub struct Gymnast {
     pub user_id: Option<Thing>,
     pub address: String,
     pub sex: String,
-    pub birth: Datetime,
+    pub birth: String,
     pub phone: String,
     pub created_at: Option<Datetime>,
     pub updated_at: Option<Datetime>,

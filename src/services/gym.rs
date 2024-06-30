@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::{
     config::db::DatabaseClient,
     errors::{self, Result},
@@ -10,12 +12,12 @@ use chrono::prelude::*;
 
 #[derive(Clone)]
 pub struct GymServices {
-    pub repo: DatabaseClient,
+    pub repo: Arc<DatabaseClient>,
 }
 
 impl GymServices {
     pub async fn is_gym_user_empty(&self, user_id: String) -> Result<(bool, Vec<Gym>)> {
-        let repo = self.repo.clone();
+        let repo = &self.repo;
 
         let data_exists = {
             let data: Vec<Gym> = repo
@@ -32,13 +34,16 @@ impl GymServices {
     }
 
     async fn is_user_empty(&self, data: &User) -> Result<(bool, Vec<User>)> {
-        let repo = self.repo.clone();
+        let repo = &self.repo;
 
         let data_exists = {
             let data: Vec<User> = repo
                 .select_where(
                     "user".to_owned(),
-                    format!("email = '{}'", data.email),
+                    format!(
+                        "email = '{}' and user_type = '{}'",
+                        data.email, data.user_type
+                    ),
                     "*".to_string(),
                 )
                 .await?;
@@ -49,7 +54,7 @@ impl GymServices {
     }
 
     async fn is_username_empty(&self, data: &User) -> Result<(bool, Vec<User>)> {
-        let repo = self.repo.clone();
+        let repo = &self.repo;
 
         let data_exists = {
             let data: Vec<User> = repo

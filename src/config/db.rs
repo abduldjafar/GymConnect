@@ -35,6 +35,8 @@ pub struct DatabaseSource {
 /* Struct for deserialization of records */
 #[derive(Clone, Debug, Deserialize)]
 struct Record {
+    
+    #[allow(dead_code)]
     id: Thing,
 }
 
