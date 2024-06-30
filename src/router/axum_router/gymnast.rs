@@ -6,11 +6,7 @@ use crate::{
     repo::model::{PayloadIdResponses, PayloadUser, User},
 };
 use argon2::{password_hash::SaltString, Argon2, PasswordHasher};
-use axum::{
-    extract::State,
-    response::IntoResponse,
-    Json,
-};
+use axum::{extract::State, response::IntoResponse, Json};
 use rand_core::OsRng;
 use serde_json::json;
 

@@ -21,3 +21,4 @@ run.sh
 
 /target
 /src/tests_backups
+run_prod.sh

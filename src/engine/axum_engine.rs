@@ -16,6 +16,7 @@ use axum::{
     Router,
 };
 use redis::Client;
+use tower_http::trace::TraceLayer;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -68,10 +69,15 @@ pub async fn run() -> Result<()> {
 
     let shared_state = Arc::new(app_state);
 
+    tracing_subscriber::fmt()
+        .with_max_level(tracing::Level::DEBUG)
+        .init();
+
     let routes_all = Router::new()
         .merge(gym_routes(shared_state.clone()))
         .merge(auth_routes(shared_state.clone()))
-        .merge(gymnast_routes(shared_state));
+        .merge(gymnast_routes(shared_state))
+        .layer(TraceLayer::new_for_http());
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, routes_all).await.unwrap();
