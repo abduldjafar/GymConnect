@@ -14,7 +14,7 @@ pub enum DatabaseType {
     // Add other database types here, e.g., Postgres
 }
 
-#[derive(Clone)]
+#[derive(Clone,Debug)]
 pub enum DatabaseClient {
     Surreal(SurrealDb),
     // Add other database clients here, e.g., Postgres(PostgresDb)
@@ -22,7 +22,7 @@ pub enum DatabaseClient {
 
 /* Define the SurrealDb struct */
 
-#[derive(Clone)]
+#[derive(Clone,Debug)]
 pub struct SurrealDb {
     pub client: Option<Surreal<Client>>,
 }

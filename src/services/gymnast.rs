@@ -9,12 +9,14 @@ use crate::{
     },
 };
 
-#[derive(Clone)]
+#[derive(Clone,Debug)]
 pub struct GymnastServices {
     pub repo: Arc<DatabaseClient>,
 }
 
 impl GymnastServices {
+
+    #[tracing::instrument(err, skip_all)]
     pub async fn is_gymanst_user_empty(&self, user_id: String) -> Result<(bool, Vec<Gymnast>)> {
         let repo = &self.repo;
 
@@ -32,6 +34,7 @@ impl GymnastServices {
         Ok(data_exists)
     }
 
+    #[tracing::instrument(err, skip_all)]
     async fn is_user_empty(&self, data: &User) -> Result<(bool, Vec<User>)> {
         let repo = self.repo.clone();
 
@@ -52,6 +55,7 @@ impl GymnastServices {
         Ok(data_exists)
     }
 
+    #[tracing::instrument(err, skip_all)]
     async fn is_username_empty(&self, data: &User) -> Result<(bool, Vec<User>)> {
         let repo = self.repo.clone();
 
@@ -69,6 +73,7 @@ impl GymnastServices {
         Ok(data_exists)
     }
 
+    #[tracing::instrument(err, skip_all)]
     pub async fn register_profile(&self, data: &User) -> Result<Option<Id>> {
         let repo = &self.repo;
 

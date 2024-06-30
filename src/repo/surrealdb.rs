@@ -8,6 +8,7 @@ use serde::{de::DeserializeOwned, Deserialize, Serialize};
 #[async_trait]
 impl DBInterface for SurrealDb {
     /* Method to insert a record into the database */
+    #[tracing::instrument(err, skip_all)]
     async fn insert_record<T, U>(&self, tb_name: String, data: &T) -> Result<Option<U>>
     where
         T: Serialize + Sync,
@@ -20,6 +21,8 @@ impl DBInterface for SurrealDb {
     }
 
     /* Method to select records from the database */
+
+    #[tracing::instrument(err, skip_all)]
     async fn select<T: DeserializeOwned + Sync>(&self, tb_name: String) -> Result<Vec<T>> {
         let client = self.client.clone().unwrap();
         let data: Vec<T> = client.select(tb_name).await?;
@@ -27,6 +30,8 @@ impl DBInterface for SurrealDb {
     }
 
     /* Method to delete a record from the database */
+
+    #[tracing::instrument(err, skip_all)]
     async fn delete(&self, id: String) -> Result<bool> {
         let client = self.client.clone().unwrap();
         let result = client.query(format!("DELETE {}", id)).await?.check();
@@ -38,6 +43,7 @@ impl DBInterface for SurrealDb {
     }
 
     /* Method to update a record in the database */
+    #[tracing::instrument(err, skip_all)]
     async fn update_record<T>(&self, id: String, tb_name: String, data: &T) -> Result<bool>
     where
         T: Serialize + for<'de> Deserialize<'de> + Sync,
@@ -49,6 +55,7 @@ impl DBInterface for SurrealDb {
     }
 
     /* Method to select records with parameters from the database */
+    #[tracing::instrument(err, skip_all)]
     async fn select_where<T: DeserializeOwned + Sync>(
         &self,
         tb_name: String,

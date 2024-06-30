@@ -85,6 +85,7 @@ pub async fn run() -> Result<()> {
     Ok(())
 }
 
+
 pub fn gym_routes(app_state: Arc<AppState>) -> Router {
     Router::new()
         .route("/api/v1/gym", post(gym::register))

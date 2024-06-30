@@ -16,6 +16,8 @@ pub struct GymServices {
 }
 
 impl GymServices {
+    
+    #[tracing::instrument(err, skip_all)]
     pub async fn is_gym_user_empty(&self, user_id: String) -> Result<(bool, Vec<Gym>)> {
         let repo = &self.repo;
 
@@ -33,6 +35,7 @@ impl GymServices {
         Ok(data_exists)
     }
 
+    #[tracing::instrument(err, skip_all)]
     async fn is_user_empty(&self, data: &User) -> Result<(bool, Vec<User>)> {
         let repo = &self.repo;
 
@@ -53,6 +56,7 @@ impl GymServices {
         Ok(data_exists)
     }
 
+    #[tracing::instrument(err, skip_all)]
     async fn is_username_empty(&self, data: &User) -> Result<(bool, Vec<User>)> {
         let repo = &self.repo;
 
@@ -70,6 +74,7 @@ impl GymServices {
         Ok(data_exists)
     }
 
+    #[tracing::instrument(err, skip_all)]
     pub async fn register_profile(&self, data: &User) -> Result<Option<Id>> {
         let repo = &self.repo;
 
@@ -113,6 +118,7 @@ impl GymServices {
         Ok(insert_into_gym_tb)
     }
 
+    #[tracing::instrument(err, skip_all)]
     pub async fn profile_details(&self, user_id: String) -> Result<PayloadGymResponses> {
         let repo = &self.repo;
 
