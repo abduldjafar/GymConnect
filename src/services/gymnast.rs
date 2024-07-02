@@ -5,19 +5,18 @@ use crate::{
     errors::{self, Result},
     repo::{
         interface::DBInterface,
-        model::{Gymnast, Id, User},
+        model::{Gymnast, Id, PayloadGymnastResponse, User},
     },
 };
 
-#[derive(Clone,Debug)]
+#[derive(Clone, Debug)]
 pub struct GymnastServices {
     pub repo: Arc<DatabaseClient>,
 }
 
 impl GymnastServices {
-
     #[tracing::instrument(err, skip_all)]
-    pub async fn is_gymanst_user_empty(&self, user_id: String) -> Result<(bool, Vec<Gymnast>)> {
+    pub async fn is_gymanst_user_empty(&self, user_id: &str) -> Result<(bool, Vec<Gymnast>)> {
         let repo = &self.repo;
 
         let data_exists = {
@@ -95,7 +94,9 @@ impl GymnastServices {
 
         let user_id = insert_into_user_tb.unwrap();
 
-        let (not_exists, _) = self.is_gymanst_user_empty(user_id.id.to_string()).await?;
+        let (not_exists, _) = self
+            .is_gymanst_user_empty(user_id.id.to_string().as_str())
+            .await?;
 
         if !not_exists {
             return Err(errors::Error::DataExist(format!("email:{}", data.email)));
@@ -117,5 +118,37 @@ impl GymnastServices {
             .await?;
 
         Ok(insert_into_gym_tb)
+    }
+
+    #[tracing::instrument(err, skip_all)]
+    pub async fn profile_details(&self, user_id: String) -> Result<PayloadGymnastResponse> {
+        let (is_empty, temp_gymnast_user) = self.is_gymanst_user_empty(&user_id).await?;
+
+        if is_empty {
+            return Err(errors::Error::DataNotAvaliable(format!("{}", &user_id)));
+        }
+
+        let data_array: Vec<PayloadGymnastResponse> = temp_gymnast_user
+            .into_iter()
+            .map(|gymnast| PayloadGymnastResponse {
+                id: gymnast.id.unwrap().to_string(),
+                user_id: gymnast.user_id.unwrap().to_string(),
+                address: gymnast.address,
+                sex: gymnast.sex,
+                birth: gymnast.birth,
+                phone: gymnast.phone,
+                created_at: gymnast.created_at,
+                updated_at: gymnast.updated_at,
+            })
+            .collect();
+
+        let data = match data_array.get(0).take() {
+            Some(data) => data.to_owned(),
+            None => {
+                return Err(errors::Error::DataNotAvaliable(format!("{}", &user_id)));
+            }
+        };
+
+        Ok(data)
     }
 }

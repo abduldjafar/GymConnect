@@ -85,7 +85,6 @@ pub async fn run() -> Result<()> {
     Ok(())
 }
 
-
 pub fn gym_routes(app_state: Arc<AppState>) -> Router {
     Router::new()
         .route("/api/v1/gym", post(gym::register))
@@ -107,5 +106,10 @@ pub fn auth_routes(app_state: Arc<AppState>) -> Router {
 pub fn gymnast_routes(app_state: Arc<AppState>) -> Router {
     Router::new()
         .route("/api/v1/gymnast", post(gymnast::register))
+        .route(
+            "/api/v1/gymnast/:id",
+            get(gymnast::get_profile)
+                .route_layer(middleware::from_fn_with_state(app_state.clone(), auth)),
+        )
         .with_state(app_state)
 }

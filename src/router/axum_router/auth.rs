@@ -17,6 +17,7 @@ pub async fn login_user(
 ) -> Result<impl IntoResponse> {
     let auth_svc = &app_state.auth_services;
     let gym_svc = &app_state.gym_services;
+    let gymnast_svc = &app_state.gymnast_services;
     let env = app_state.environment.clone();
 
     let user = auth_svc.login(body.email).await?;
@@ -36,6 +37,10 @@ pub async fn login_user(
         if user.user_type == "gym" {
             let data = gym_svc.profile_details(user.id.to_string()).await?;
             data.id
+        } else if user.user_type == "gymnast"{
+            let data = gymnast_svc.profile_details(user.id.to_string()).await?;
+            data.id
+        
         } else {
             return Err(errors::Error::DataExist(format!("{} not found", user.id)));
         }

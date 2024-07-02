@@ -94,6 +94,19 @@ pub struct Gymnast {
     pub updated_at: Option<Datetime>,
 }
 
+/* Struct representing a Gym User in the database */
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PayloadGymnastResponse {
+    pub id: String,
+    pub user_id: String,
+    pub address: String,
+    pub sex: String,
+    pub birth: String,
+    pub phone: String,
+    pub created_at: Option<Datetime>,
+    pub updated_at: Option<Datetime>,
+}
+
 #[derive(Debug, Deserialize)]
 pub struct LoginUserSchema {
     pub email: String,

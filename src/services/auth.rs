@@ -11,7 +11,6 @@ pub struct AuthServices {
 }
 
 impl AuthServices {
-
     #[tracing::instrument(err, skip_all)]
     pub async fn login(&self, email: String) -> Result<PayloadUserResponse> {
         let repo = &self.repo;

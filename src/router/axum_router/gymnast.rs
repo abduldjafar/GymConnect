@@ -2,13 +2,19 @@ use std::sync::Arc;
 
 use crate::{
     engine::axum_engine::AppState,
-    errors::Result,
+    errors::{self, Result},
     repo::model::{PayloadIdResponses, PayloadUser, User},
 };
 use argon2::{password_hash::SaltString, Argon2, PasswordHasher};
-use axum::{extract::State, response::IntoResponse, Json};
+use axum::{
+    extract::{Path, State},
+    response::IntoResponse,
+    Extension, Json,
+};
 use rand_core::OsRng;
 use serde_json::json;
+
+use super::midleware::jwt_auth::JWTAuthMiddleware;
 
 pub async fn register(
     State(app_state): State<Arc<AppState>>,
@@ -43,4 +49,22 @@ pub async fn register(
         "status": "success",
         "response": payload_id_responses
     })))
+}
+
+pub async fn get_profile(
+    State(app_state): State<Arc<AppState>>,
+    Path(id): Path<String>,
+    Extension(jwt): Extension<JWTAuthMiddleware>,
+) -> Result<impl IntoResponse> {
+    // Get profile details
+    let svc = &app_state.gymnast_services;
+    let data = svc.profile_details(id).await?;
+
+    if jwt.user_id != data.id {
+        return Err(errors::Error::UserUnauthorized(String::from(
+            "user unauthorized to get profile",
+        )));
+    }
+
+    Ok(Json(data))
 }

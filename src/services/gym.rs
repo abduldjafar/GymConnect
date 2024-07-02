@@ -16,7 +16,6 @@ pub struct GymServices {
 }
 
 impl GymServices {
-    
     #[tracing::instrument(err, skip_all)]
     pub async fn is_gym_user_empty(&self, user_id: String) -> Result<(bool, Vec<Gym>)> {
         let repo = &self.repo;
