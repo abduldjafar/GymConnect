@@ -37,10 +37,9 @@ pub async fn login_user(
         if user.user_type == "gym" {
             let data = gym_svc.profile_details(user.id.to_string()).await?;
             data.id
-        } else if user.user_type == "gymnast"{
+        } else if user.user_type == "gymnast" {
             let data = gymnast_svc.profile_details(user.id.to_string()).await?;
             data.id
-        
         } else {
             return Err(errors::Error::DataExist(format!("{} not found", user.id)));
         }

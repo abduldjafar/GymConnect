@@ -1,11 +1,13 @@
 use std::sync::Arc;
 
+use chrono::Utc;
+
 use crate::{
     config::db::DatabaseClient,
     errors::{self, Result},
     repo::{
         interface::DBInterface,
-        model::{Gymnast, Id, PayloadGymnastResponse, User},
+        model::{Gymnast, Id, PayloadGymnastRequest, PayloadGymnastResponse, User},
     },
 };
 
@@ -105,10 +107,10 @@ impl GymnastServices {
         let gymnast_data = Gymnast {
             id: None,
             user_id: Some(user_id.id),
-            address: String::from(""),
-            sex: String::from(""),
-            birth: String::from(""),
-            phone: String::from(""),
+            address: None,
+            sex: None,
+            birth: None,
+            phone: None,
             created_at: None,
             updated_at: None,
         };
@@ -150,5 +152,53 @@ impl GymnastServices {
         };
 
         Ok(data)
+    }
+
+    pub async fn update_profile(
+        &self,
+        payload: &PayloadGymnastRequest,
+        user_id: String,
+    ) -> Result<()> {
+        let repo = &self.repo;
+
+        let (not_exists, existing_data) = self.is_gymanst_user_empty(&user_id).await?;
+
+        if not_exists {
+            return Err(errors::Error::DataNotAvaliable(format!("{}", user_id)));
+        }
+
+        let existing_record = &existing_data[0];
+        let time_now: surrealdb::sql::Datetime = surrealdb::sql::Datetime(Utc::now());
+
+        let data = PayloadGymnastRequest {
+            created_at: existing_record
+                .created_at
+                .clone()
+                .or_else(|| Some(time_now.clone())),
+            updated_at: Some(time_now),
+            address: payload
+                .address
+                .clone()
+                .or_else(|| existing_record.address.clone()),
+            sex: payload.sex.clone().or_else(|| existing_record.sex.clone()),
+            birth: payload
+                .birth
+                .clone()
+                .or_else(|| existing_record.birth.clone()),
+            phone: payload
+                .phone
+                .clone()
+                .or_else(|| existing_record.phone.clone()),
+        };
+
+        let gym_id = existing_record.clone().id.unwrap().to_string();
+
+        let update_data = repo.update_record(gym_id, "gym".to_string(), &data).await?;
+
+        if !update_data {
+            return Err(errors::Error::DatabaseError(format!("{}", user_id)));
+        }
+
+        Ok(())
     }
 }

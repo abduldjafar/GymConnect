@@ -3,7 +3,7 @@ use std::sync::Arc;
 use crate::{
     engine::axum_engine::AppState,
     errors::{self, Result},
-    repo::model::{PayloadIdResponses, PayloadUser, User},
+    repo::model::{PayloadGymnastRequest, PayloadIdResponses, PayloadUser, User},
 };
 use argon2::{password_hash::SaltString, Argon2, PasswordHasher};
 use axum::{
@@ -67,4 +67,29 @@ pub async fn get_profile(
     }
 
     Ok(Json(data))
+}
+
+pub async fn update_profile(
+    State(app_state): State<Arc<AppState>>,
+    Path(id): Path<String>,
+    Extension(jwt): Extension<JWTAuthMiddleware>,
+    payload: Json<PayloadGymnastRequest>,
+) -> Result<impl IntoResponse> {
+    let svc = &app_state.gymnast_services;
+    let (is_empty, data) = svc.is_gymanst_user_empty(&id).await?;
+
+    if !is_empty {
+        let gym_id = data.get(0).unwrap();
+        if jwt.user_id != gym_id.clone().id.unwrap().to_string() {
+            return Err(errors::Error::UserUnauthorized(String::from(
+                "user unauthorized to update profile",
+            )));
+        }
+    }
+
+    svc.update_profile(&payload, id).await?;
+
+    Ok(Json(json!({
+        "status": "success",
+    })))
 }

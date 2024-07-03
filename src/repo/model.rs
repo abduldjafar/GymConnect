@@ -86,10 +86,21 @@ pub struct PayloadUserResponse {
 pub struct Gymnast {
     pub id: Option<Thing>,
     pub user_id: Option<Thing>,
-    pub address: String,
-    pub sex: String,
-    pub birth: String,
-    pub phone: String,
+    pub address: Option<String>,
+    pub sex: Option<String>,
+    pub birth: Option<String>,
+    pub phone: Option<String>,
+    pub created_at: Option<Datetime>,
+    pub updated_at: Option<Datetime>,
+}
+
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct PayloadGymnastRequest {
+    pub address: Option<String>,
+    pub sex: Option<String>,
+    pub birth: Option<String>,
+    pub phone: Option<String>,
     pub created_at: Option<Datetime>,
     pub updated_at: Option<Datetime>,
 }
@@ -99,10 +110,10 @@ pub struct Gymnast {
 pub struct PayloadGymnastResponse {
     pub id: String,
     pub user_id: String,
-    pub address: String,
-    pub sex: String,
-    pub birth: String,
-    pub phone: String,
+    pub address: Option<String>,
+    pub sex: Option<String>,
+    pub birth: Option<String>,
+    pub phone: Option<String>,
     pub created_at: Option<Datetime>,
     pub updated_at: Option<Datetime>,
 }
