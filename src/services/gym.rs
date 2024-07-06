@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use crate::{
     adapter::model::{Gym, Id, PayloadGymRequest, PayloadGymResponses, User},
     errors::{self, Result},
