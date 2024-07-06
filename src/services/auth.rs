@@ -1,13 +1,14 @@
 use crate::{
     adapter::{interface::DBInterface, model::PayloadUserResponse},
     config::db::DatabaseClient,
-    errors::{self, Result},
+    errors::{self, Result}, repository::user::UserRepository,
 };
 use std::sync::Arc;
 
 #[derive(Clone)]
 pub struct AuthServices {
     pub repo: Arc<DatabaseClient>,
+    pub user_repository: UserRepository,
 }
 
 impl AuthServices {

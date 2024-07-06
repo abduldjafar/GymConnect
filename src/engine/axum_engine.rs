@@ -59,13 +59,12 @@ pub async fn run() -> Result<()> {
     let user_repository = UserRepository { repo: conn.clone() };
 
     let gym_services = GymServices {
-        repo: conn.clone(),
         gym_repository: gym_repository,
-        user_repository: user_repository,
+        user_repository: user_repository.clone(),
     };
 
     let gymnast_services = GymnastServices { repo: conn.clone() };
-    let auth_services = AuthServices { repo: conn.clone() };
+    let auth_services = AuthServices { repo: conn.clone(),user_repository:user_repository.clone() };
     let environment = Environment::new();
 
     let app_state = AppState {

@@ -2,7 +2,6 @@ use std::sync::Arc;
 
 use crate::{
     adapter::model::{Gym, Id, PayloadGymRequest, PayloadGymResponses, User},
-    config::db::DatabaseClient,
     errors::{self, Result},
     repository::{gym::GymRepository, user::UserRepository},
 };
@@ -10,7 +9,6 @@ use chrono::prelude::*;
 
 #[derive(Clone)]
 pub struct GymServices {
-    pub repo: Arc<DatabaseClient>,
     pub gym_repository: GymRepository,
     pub user_repository: UserRepository,
 }
@@ -25,7 +23,6 @@ impl GymServices {
     #[tracing::instrument(err, skip_all)]
     async fn is_user_empty(&self, data: &User) -> Result<(bool, Vec<User>)> {
         let data_exists = self.user_repository.is_data_empty_by_email(data).await?;
-
         Ok(data_exists)
     }
 
@@ -44,25 +41,20 @@ impl GymServices {
 
         let (is_username_empty, _) = self.is_username_empty(data).await?;
         if !is_username_empty {
-            return Err(errors::Error::DataExist(format!(
-                "username:{}",
-                data.username
-            )));
+            return Err(errors::Error::DataExist(format!("username:{}", data.username)));
         }
 
         let insert_into_user_tb: Option<Id> = self.user_repository.insert_data(data).await?;
-
         let user_id = insert_into_user_tb.unwrap();
 
         let (not_exists, _) = self.is_gym_user_empty(user_id.id.to_string()).await?;
-
         if !not_exists {
             return Err(errors::Error::DataExist(format!("email:{}", data.email)));
         }
 
         let gym_data = Gym {
             id: None,
-            user_id: std::option::Option::Some(user_id.id),
+            user_id: Some(user_id.id),
             created_at: None,
             updated_at: None,
             address: String::from(""),
@@ -71,7 +63,6 @@ impl GymServices {
         };
 
         let insert_into_gym_tb: Option<Id> = self.gym_repository.insert_data(&gym_data).await?;
-
         Ok(insert_into_gym_tb)
     }
 
@@ -102,9 +93,9 @@ impl GymServices {
         Ok(data)
     }
 
+    #[tracing::instrument(err, skip_all)]
     pub async fn update_profile(&self, payload: &PayloadGymRequest, user_id: String) -> Result<()> {
         let (not_exists, existing_data) = self.gym_repository.is_gym_data_empty(&user_id).await?;
-
         if not_exists {
             return Err(errors::Error::DataNotAvaliable(format!("{}", user_id)));
         }
@@ -134,9 +125,7 @@ impl GymServices {
         };
 
         let gym_id = existing_record.clone().id.unwrap().to_string();
-
         let update_data = self.gym_repository.update_data(gym_id, &data).await?;
-
         if !update_data {
             return Err(errors::Error::DatabaseError(format!("{}", user_id)));
         }

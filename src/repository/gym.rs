@@ -43,7 +43,7 @@ impl GymRepository {
         let data: Vec<GymModel> = repo
             .select_where(
                 "gym".to_owned(),
-                format!("user_id = '{}'", user_id.to_string()),
+                format!("user_id = '{}'", user_id),
                 "*".to_string(),
             )
             .await?;
