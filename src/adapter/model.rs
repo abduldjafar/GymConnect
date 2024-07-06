@@ -94,7 +94,6 @@ pub struct Gymnast {
     pub updated_at: Option<Datetime>,
 }
 
-
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PayloadGymnastRequest {
     pub address: Option<String>,

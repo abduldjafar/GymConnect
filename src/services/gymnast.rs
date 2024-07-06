@@ -3,12 +3,12 @@ use std::sync::Arc;
 use chrono::Utc;
 
 use crate::{
-    config::db::DatabaseClient,
-    errors::{self, Result},
-    repo::{
+    adapter::{
         interface::DBInterface,
         model::{Gymnast, Id, PayloadGymnastRequest, PayloadGymnastResponse, User},
     },
+    config::db::DatabaseClient,
+    errors::{self, Result},
 };
 
 #[derive(Clone, Debug)]

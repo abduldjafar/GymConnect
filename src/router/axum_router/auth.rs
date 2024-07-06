@@ -7,7 +7,7 @@ use axum_extra::extract::cookie::{Cookie, SameSite};
 use serde_json::json;
 
 use crate::authorization::jwt::{generate_jwt_token, save_token_data_to_redis};
-use crate::{engine::axum_engine::AppState, repo::model::LoginUserSchema};
+use crate::{adapter::model::LoginUserSchema, engine::axum_engine::AppState};
 
 use crate::errors::{self, Result};
 

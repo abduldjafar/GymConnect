@@ -7,6 +7,7 @@ use crate::{
     },
     environment::Environment,
     errors::Result,
+    repository::{gym::GymRepository, user::UserRepository},
     router::axum_router::{auth, gym, gymnast, midleware::jwt_auth::auth},
     services::{auth::AuthServices, gym::GymServices, gymnast::GymnastServices},
 };
@@ -54,7 +55,15 @@ pub async fn run() -> Result<()> {
         std::process::exit(1);
     }
 
-    let gym_services = GymServices { repo: conn.clone() };
+    let gym_repository = GymRepository { repo: conn.clone() };
+    let user_repository = UserRepository { repo: conn.clone() };
+
+    let gym_services = GymServices {
+        repo: conn.clone(),
+        gym_repository: gym_repository,
+        user_repository: user_repository,
+    };
+
     let gymnast_services = GymnastServices { repo: conn.clone() };
     let auth_services = AuthServices { repo: conn.clone() };
     let environment = Environment::new();

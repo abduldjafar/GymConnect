@@ -1,82 +1,42 @@
 use std::sync::Arc;
 
 use crate::{
+    adapter::model::{Gym, Id, PayloadGymRequest, PayloadGymResponses, User},
     config::db::DatabaseClient,
     errors::{self, Result},
-    repo::{
-        interface::DBInterface,
-        model::{Gym, Id, PayloadGymRequest, PayloadGymResponses, User},
-    },
+    repository::{gym::GymRepository, user::UserRepository},
 };
 use chrono::prelude::*;
 
 #[derive(Clone)]
 pub struct GymServices {
     pub repo: Arc<DatabaseClient>,
+    pub gym_repository: GymRepository,
+    pub user_repository: UserRepository,
 }
 
 impl GymServices {
     #[tracing::instrument(err, skip_all)]
     pub async fn is_gym_user_empty(&self, user_id: String) -> Result<(bool, Vec<Gym>)> {
-        let repo = &self.repo;
-
-        let data_exists = {
-            let data: Vec<Gym> = repo
-                .select_where(
-                    "gym".to_owned(),
-                    format!("user_id = '{}'", user_id),
-                    "*".to_string(),
-                )
-                .await?;
-            (data.is_empty(), data)
-        };
-
+        let data_exists = self.gym_repository.is_gym_data_empty(&user_id).await?;
         Ok(data_exists)
     }
 
     #[tracing::instrument(err, skip_all)]
     async fn is_user_empty(&self, data: &User) -> Result<(bool, Vec<User>)> {
-        let repo = &self.repo;
-
-        let data_exists = {
-            let data: Vec<User> = repo
-                .select_where(
-                    "user".to_owned(),
-                    format!(
-                        "email = '{}' and user_type = '{}'",
-                        data.email, data.user_type
-                    ),
-                    "*".to_string(),
-                )
-                .await?;
-            (data.is_empty(), data)
-        };
+        let data_exists = self.user_repository.is_data_empty_by_email(data).await?;
 
         Ok(data_exists)
     }
 
     #[tracing::instrument(err, skip_all)]
     async fn is_username_empty(&self, data: &User) -> Result<(bool, Vec<User>)> {
-        let repo = &self.repo;
-
-        let data_exists = {
-            let data: Vec<User> = repo
-                .select_where(
-                    "user".to_owned(),
-                    format!("username = '{}'", data.username),
-                    "*".to_string(),
-                )
-                .await?;
-            (data.is_empty(), data)
-        };
-
+        let data_exists = self.user_repository.is_data_empty_by_username(data).await?;
         Ok(data_exists)
     }
 
     #[tracing::instrument(err, skip_all)]
     pub async fn register_profile(&self, data: &User) -> Result<Option<Id>> {
-        let repo = &self.repo;
-
         let (is_user_empty, _) = self.is_user_empty(data).await?;
         if !is_user_empty {
             return Err(errors::Error::DataExist(format!("email:{}", data.email)));
@@ -90,8 +50,7 @@ impl GymServices {
             )));
         }
 
-        let insert_into_user_tb: Option<Id> =
-            repo.insert_record(String::from("user"), data).await?;
+        let insert_into_user_tb: Option<Id> = self.user_repository.insert_data(data).await?;
 
         let user_id = insert_into_user_tb.unwrap();
 
@@ -111,23 +70,14 @@ impl GymServices {
             phone: String::from(""),
         };
 
-        let insert_into_gym_tb: Option<Id> =
-            repo.insert_record(String::from("gym"), &gym_data).await?;
+        let insert_into_gym_tb: Option<Id> = self.gym_repository.insert_data(&gym_data).await?;
 
         Ok(insert_into_gym_tb)
     }
 
     #[tracing::instrument(err, skip_all)]
     pub async fn profile_details(&self, user_id: String) -> Result<PayloadGymResponses> {
-        let repo = &self.repo;
-
-        let temp_data: Vec<Gym> = repo
-            .select_where(
-                "gym".to_owned(),
-                format!("user_id = '{}'", user_id.to_string()),
-                "*".to_string(),
-            )
-            .await?;
+        let temp_data: Vec<Gym> = self.gym_repository.get_details(&user_id).await?;
 
         let data_array: Vec<PayloadGymResponses> = temp_data
             .into_iter()
@@ -153,9 +103,7 @@ impl GymServices {
     }
 
     pub async fn update_profile(&self, payload: &PayloadGymRequest, user_id: String) -> Result<()> {
-        let repo = &self.repo;
-
-        let (not_exists, existing_data) = self.is_gym_user_empty(user_id.clone()).await?;
+        let (not_exists, existing_data) = self.gym_repository.is_gym_data_empty(&user_id).await?;
 
         if not_exists {
             return Err(errors::Error::DataNotAvaliable(format!("{}", user_id)));
@@ -187,7 +135,7 @@ impl GymServices {
 
         let gym_id = existing_record.clone().id.unwrap().to_string();
 
-        let update_data = repo.update_record(gym_id, "gym".to_string(), &data).await?;
+        let update_data = self.gym_repository.update_data(gym_id, &data).await?;
 
         if !update_data {
             return Err(errors::Error::DatabaseError(format!("{}", user_id)));

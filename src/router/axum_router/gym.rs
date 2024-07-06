@@ -1,9 +1,9 @@
 use std::sync::Arc;
 
 use crate::{
+    adapter::model::{PayloadGymRequest, PayloadIdResponses, PayloadUser, User},
     engine::axum_engine::AppState,
     errors::{self, Result},
-    repo::model::{PayloadGymRequest, PayloadIdResponses, PayloadUser, User},
 };
 use argon2::{password_hash::SaltString, Argon2, PasswordHasher};
 use axum::{
