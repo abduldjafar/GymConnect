@@ -1,7 +1,8 @@
 use crate::{
     adapter::{interface::DBInterface, model::PayloadUserResponse},
     config::db::DatabaseClient,
-    errors::{self, Result}, repository::user::UserRepository,
+    errors::{self, Result},
+    repository::user::UserRepository,
 };
 use std::sync::Arc;
 

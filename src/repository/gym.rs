@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use super::{DBClient, GymId, GymModel, RepositoryGymRequest, RepositoryResult};
+use super::{DBClient, GymId, GymModel, RepositoryGymRequest, RepositoryResult, UserModel};
 use crate::adapter::interface::DBInterface as _;
 
 #[derive(Clone)]
@@ -21,6 +21,27 @@ impl GymRepository {
                 .select_where(
                     "gym".to_owned(),
                     format!("user_id = '{}'", user_id),
+                    "*".to_string(),
+                )
+                .await?;
+            (data.is_empty(), data)
+        };
+
+        Ok(data_exists)
+    }
+
+    #[tracing::instrument(err, skip_all)]
+    pub async fn is_gym_data_empty_by_email(
+        &self,
+        email: &str,
+    ) -> RepositoryResult<(bool, Vec<UserModel>)> {
+        let repo = &self.repo;
+
+        let data_exists = {
+            let data: Vec<UserModel> = repo
+                .select_where(
+                    "user".to_owned(),
+                    format!("email = '{}' and user_type = 'gym'", email),
                     "*".to_string(),
                 )
                 .await?;

@@ -4,7 +4,7 @@ use async_trait::async_trait;
 
 pub enum EngineType {
     Axum,
-    // Add other engine types here, e.g., webtix
+    // Add other engine types here, e.g., Actix
 }
 
 #[async_trait]

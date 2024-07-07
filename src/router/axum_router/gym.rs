@@ -76,7 +76,7 @@ pub async fn update_profile(
     payload: Json<PayloadGymRequest>,
 ) -> Result<impl IntoResponse> {
     let svc = &app_state.gym_services;
-    let (is_empty, data) = svc.is_gym_user_empty(id.clone()).await?;
+    let (is_empty, data) = svc.is_gym_user_empty(&id).await?;
 
     if !is_empty {
         let gym_id = data.get(0).unwrap();

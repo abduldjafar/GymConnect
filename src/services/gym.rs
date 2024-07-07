@@ -13,14 +13,17 @@ pub struct GymServices {
 
 impl GymServices {
     #[tracing::instrument(err, skip_all)]
-    pub async fn is_gym_user_empty(&self, user_id: String) -> Result<(bool, Vec<Gym>)> {
-        let data_exists = self.gym_repository.is_gym_data_empty(&user_id).await?;
+    pub async fn is_gym_user_empty(&self, user_id: &str) -> Result<(bool, Vec<Gym>)> {
+        let data_exists = self.gym_repository.is_gym_data_empty(user_id).await?;
         Ok(data_exists)
     }
 
     #[tracing::instrument(err, skip_all)]
     async fn is_user_empty(&self, data: &User) -> Result<(bool, Vec<User>)> {
-        let data_exists = self.user_repository.is_data_empty_by_email(data).await?;
+        let data_exists = self
+            .gym_repository
+            .is_gym_data_empty_by_email(&data.email)
+            .await?;
         Ok(data_exists)
     }
 
@@ -39,13 +42,18 @@ impl GymServices {
 
         let (is_username_empty, _) = self.is_username_empty(data).await?;
         if !is_username_empty {
-            return Err(errors::Error::DataExist(format!("username:{}", data.username)));
+            return Err(errors::Error::DataExist(format!(
+                "username:{}",
+                data.username
+            )));
         }
 
         let insert_into_user_tb: Option<Id> = self.user_repository.insert_data(data).await?;
         let user_id = insert_into_user_tb.unwrap();
 
-        let (not_exists, _) = self.is_gym_user_empty(user_id.id.to_string()).await?;
+        let (not_exists, _) = self
+            .is_gym_user_empty(user_id.id.to_string().as_ref())
+            .await?;
         if !not_exists {
             return Err(errors::Error::DataExist(format!("email:{}", data.email)));
         }
@@ -66,7 +74,11 @@ impl GymServices {
 
     #[tracing::instrument(err, skip_all)]
     pub async fn profile_details(&self, user_id: String) -> Result<PayloadGymResponses> {
-        let temp_data: Vec<Gym> = self.gym_repository.get_details(&user_id).await?;
+        let (is_empty, temp_data) = self.is_gym_user_empty(&user_id).await?;
+
+        if is_empty {
+            return Err(errors::Error::DataNotAvaliable(format!("{}", &user_id)));
+        }
 
         let data_array: Vec<PayloadGymResponses> = temp_data
             .into_iter()
