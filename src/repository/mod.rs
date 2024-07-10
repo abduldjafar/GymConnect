@@ -1,11 +1,14 @@
 use crate::{
-    adapter::model::{Gym, Gymnast, Id, PayloadGymRequest, PayloadGymnastRequest, User},
+    adapter::model::{
+        Gym, Gymnast, Id, PayloadGymRequest, PayloadGymnastRequest, PersonalTrainer, User,
+    },
     config::db::DatabaseClient,
     errors::Result,
 };
 
 pub mod gym;
 pub mod gymnast;
+pub mod personal_trainer;
 pub mod user;
 
 type DBClient = DatabaseClient;
@@ -21,3 +24,6 @@ type RepositoryGymnastRequest = PayloadGymnastRequest;
 
 type UserModel = User;
 type UserId = Id;
+
+type PersonalTrainerModel = PersonalTrainer;
+type PersonalTrainerId = Id;

@@ -11,6 +11,7 @@ use axum::{
     response::IntoResponse,
     Extension, Json,
 };
+use chrono::Utc;
 use rand_core::OsRng;
 use serde_json::json;
 
@@ -21,6 +22,10 @@ pub async fn register(
     payload: Json<PayloadUser>,
 ) -> Result<impl IntoResponse> {
     // Generate salt and hash the password
+
+    let time_now: surrealdb::sql::Datetime = surrealdb::sql::Datetime(Utc::now());
+
+    
     let salt = SaltString::generate(&mut OsRng);
     let hashed_password = Argon2::default()
         .hash_password(payload.password.as_bytes(), &salt)?
@@ -31,8 +36,8 @@ pub async fn register(
         username: payload.username.clone(),
         user_type: String::from("gymnast"),
         email: payload.email.clone(),
-        created_at: None,
-        updated_at: None,
+        created_at: Some(time_now.clone()),
+        updated_at: Some(time_now.clone()),
         password: hashed_password,
     };
 
@@ -79,8 +84,8 @@ pub async fn update_profile(
     let (is_empty, data) = svc.is_gymanst_user_empty(&id).await?;
 
     if !is_empty {
-        let gym_id = data.get(0).unwrap();
-        if jwt.user_id != gym_id.clone().id.unwrap().to_string() {
+        let gymnast_id = data.get(0).unwrap();
+        if jwt.user_id != gymnast_id.clone().id.unwrap().to_string() {
             return Err(errors::Error::UserUnauthorized(String::from(
                 "user unauthorized to update profile",
             )));

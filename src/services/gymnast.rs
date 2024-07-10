@@ -39,6 +39,10 @@ impl GymnastServices {
 
     #[tracing::instrument(err, skip_all)]
     pub async fn register_profile(&self, data: &User) -> Result<Option<Id>> {
+
+        let time_now: surrealdb::sql::Datetime = surrealdb::sql::Datetime(Utc::now());
+        
+
         let (is_user_empty, _) = self.is_user_empty(data).await?;
         if !is_user_empty {
             return Err(errors::Error::DataExist(format!("email:{}", data.email)));
@@ -55,6 +59,7 @@ impl GymnastServices {
         let insert_into_user_tb: Option<Id> = self.user_repository.insert_data(&data).await?;
 
         let user_id = insert_into_user_tb.unwrap();
+        
 
         let (not_exists, _) = self
             .is_gymanst_user_empty(user_id.id.to_string().as_str())
@@ -67,12 +72,12 @@ impl GymnastServices {
         let gymnast_data = Gymnast {
             id: None,
             user_id: Some(user_id.id),
-            address: None,
-            sex: None,
-            birth: None,
-            phone: None,
-            created_at: None,
-            updated_at: None,
+            address: Some("".to_string()),
+            sex:  Some("".to_string()),
+            birth:  Some("".to_string()),
+            phone:  Some("".to_string()),
+            created_at: Some(time_now.clone()),
+            updated_at: Some(time_now.clone()),
         };
 
         let insert_into_gym_tb: Option<Id> = self.repository.insert_data(&gymnast_data).await?;

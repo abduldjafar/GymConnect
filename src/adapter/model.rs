@@ -122,3 +122,15 @@ pub struct LoginUserSchema {
     pub email: String,
     pub password: String,
 }
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+#[allow(dead_code)]
+pub struct PersonalTrainer {
+    pub id: Option<Thing>,
+    pub gym_id: Option<Thing>,
+    pub user_id: Option<Thing>,
+    pub full_name: Option<String>,
+    pub experience: i32,
+    pub sex: Option<String>,
+    pub created_at: Option<Datetime>,
+}

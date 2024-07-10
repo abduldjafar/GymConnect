@@ -58,11 +58,13 @@ impl GymServices {
             return Err(errors::Error::DataExist(format!("email:{}", data.email)));
         }
 
+        let time_now: surrealdb::sql::Datetime = surrealdb::sql::Datetime(Utc::now());
+
         let gym_data = Gym {
             id: None,
             user_id: Some(user_id.id),
-            created_at: None,
-            updated_at: None,
+            created_at: Some(time_now.clone()),
+            updated_at: Some(time_now.clone()),
             address: String::from(""),
             owner_name: String::from(""),
             phone: String::from(""),
