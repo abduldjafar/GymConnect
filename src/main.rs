@@ -1,4 +1,4 @@
-use koteka_gym::{
+use gymconnect::{
     engine::engine::{ Cmd, EngineType},
     errors::Result,
 };
