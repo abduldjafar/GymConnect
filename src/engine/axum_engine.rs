@@ -128,3 +128,4 @@ pub fn gymnast_routes(app_state: Arc<AppState>) -> Router {
         )
         .with_state(app_state)
 }
+
